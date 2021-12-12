@@ -1,0 +1,25 @@
+{
+  "name": "spiesforpeace",
+  "version": "1.0.0",
+  "private": "true",
+  "description": "In order to stop a cold war you need to use a team of peacespies to convert two groups of  spies who unto each other. End the cold war before one side wins!",
+  "main": "./src/app.js",
+  "scripts": {
+    "test": "jasmine",
+    "start": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lytecyde/SpiesForPeace.git"
+  },
+  "keywords": [],
+  "author": "Mik Seljamaa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lytecyde/SpiesForPeace/issues"
+  },
+  "homepage": "https://github.com/Lytecyde/SpiesForPeace#readme",
+  "devDependencies": {
+    "jasmine": "^3.10.0"
+  }
+}
