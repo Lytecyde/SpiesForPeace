@@ -1,25 +1,40 @@
-const scene = {
-    preload: function () {
+import City from "./city.js";
+
+export default class Game extends Phaser.Scene {
+
+    constructor(){
+        super('Game');
+        this.helloText;
+        this.cursors;
+        //this.city;
+    }
+
+    preload () {
         this.load.bitmapFont("arcade", "/assets/font/arcade.png", "/assets/font/arcade.xml");
-    },
-    create: function () {
-        this.helloText = this.add.bitmapText(400, 300, "arcade", "Hello Phaser").setOrigin(0.5);
+    }
+    
+    create () {
+        this.helloText = this.add.bitmapText(401, 301, "arcade", "PACIFISTS!");
+        
         this.cursors = this.input.keyboard.createCursorKeys();
-    }, 
-    update: function () {
+       
+        this.scene.add('city', City, true, { x: 800, y: 600 });
+    }
+     
+    update () {
         //this.helloText.x += 10
         if (this.cursors.left.isDown) {
             this.helloText.x -= 10;
         }
         if (this.cursors.right.isDown) {
             this.helloText.x += 10;
-}
+        }
         if (this.cursors.up.isDown) {
             this.helloText.y -= 10;
-}
+        }
         if (this.cursors.down.isDown) {
             this.helloText.y += 10;
-}
+        }   
         if (this.helloText.x > 1000) {
             this.helloText.x = -200
         }
@@ -29,19 +44,3 @@ const scene = {
         }
     } 
 }
-
-const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    backgroundColor: "#000",
-    parent: "game",
-    pixelArt: true,
-    scene: scene,
-    physics: {
-        default: "arcade",
-        arcade: {
-            gravity: { y: 0 }
-        }
-} };
-const game = new Phaser.Game(config);
