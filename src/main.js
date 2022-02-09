@@ -4,7 +4,7 @@ const config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#d4c6aa',
     parent: 'phaser-example',
     scene: [ Game ],
     physics: {

@@ -22,7 +22,7 @@ export default class Game extends Phaser.Scene {
     }
      
     update () {
-        //this.helloText.x += 10
+        
         if (this.cursors.left.isDown) {
             this.helloText.x -= 10;
         }

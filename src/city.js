@@ -7,15 +7,16 @@ export default class City extends Phaser.Scene
         super('City');
         this.level;
         this.alignmentBar;
+        this.spy1;
     }
 
     preload() {
         this.load.spritesheet(
             'city-tiles',
-            '/assets/spritesheet/city.png',
+            '/assets/spritesheet/city32.png',
             {
-                frameWidth: 16,
-                frameHeight: 16,
+                frameWidth: 32,
+                frameHeight: 32,
                 margin: 0,
                 spacing: 1
                 
@@ -25,8 +26,8 @@ export default class City extends Phaser.Scene
             'baddies',
             '/assets/spritesheet/baddies.png',
             {
-                frameWidth: 16,
-                frameHeight: 16,
+                frameWidth: 32,
+                frameHeight: 32,
                 spacing: 0
             }
         );
@@ -39,7 +40,7 @@ export default class City extends Phaser.Scene
         let level = new Level();
         let m = level.getCityMap();
 
-        const tileSize = 16;
+        const tileSize = 32;
         const config = {
             data: m,
             tileWidth: tileSize,
@@ -49,8 +50,8 @@ export default class City extends Phaser.Scene
         const tileset = map.addTilesetImage(
             'city-tiles',
             'city-tiles',
-            16,
-            16,
+            32,
+            32,
             0,
             0
             );
@@ -63,18 +64,45 @@ export default class City extends Phaser.Scene
         //spies
         
         
-        let spy1 = this.add.sprite(64, 60, "baddies");
+        this.spy1 = this.add.sprite(400, 300, "baddies");
 
-        spy1.setFrame(0)
+        this.spy1.setFrame(0);
         
            
-        let spy2 = this.add.sprite(30, 60, "baddies");
+        let spy2 = this.add.sprite(480, 300, "baddies");
 
         spy2.setFrame(2);
 
+        this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     update (time, delta) {
+        if (this.cursors.left.isDown) {
+            this.spy1.x -= 1;
+        }
+        if (this.cursors.right.isDown) {
+            this.spy1.x += 1;
+        }
+        if (this.cursors.up.isDown) {
+            this.spy1.y -= 1;
+        }
+        if (this.cursors.down.isDown) {
+            this.spy1.y += 1;
+        }   
+        if (this.spy1.x > 720) {
+            this.spy1.x = 720;
+        }
+
+        if (this.spy1.x < 400) {
+            this.spy1.x = 400;
+        }
+
+        if (this.spy1.y > 444) {
+            this.spy1.y = 444;
+        }
+        if (this.spy1.y < 300) {
+            this.spy1.y = 300;
+        }
 
     }
 }
