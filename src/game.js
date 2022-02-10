@@ -42,5 +42,7 @@ export default class Game extends Phaser.Scene {
         if (this.helloText.x < -210) {
             this.helloText.x = 990
         }
+
     } 
+    
 }

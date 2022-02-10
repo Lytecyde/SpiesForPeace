@@ -16,7 +16,7 @@ export default class AlignmentBar {
 
     decrease ()
     {
-        this.value -= 1;
+        this.value -= 10;
 
         if (this.value < 0)
         {
@@ -30,7 +30,7 @@ export default class AlignmentBar {
 
     increase ()
     {
-        this.value += 1;
+        this.value += 10;
         if (this.value > 800)
         {
             this.value = 800;
@@ -46,12 +46,12 @@ export default class AlignmentBar {
 
         //  BG
         this.bar.fillStyle(0x000000);
-        this.bar.fillRect(this.x, this.y, 80, 16);
+        this.bar.fillRect(this.x, this.y, 798, 16);
 
         //  Health
 
         this.bar.fillStyle(0xffffff);
-        this.bar.fillRect(this.x + 2, this.y + 2, 76, 12);
+        this.bar.fillRect(this.x + 2, this.y + 2, 796, 12);
 
         if (this.value < 792)
         {
