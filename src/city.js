@@ -84,6 +84,7 @@ export default class City extends Phaser.Scene
     }
 
     update (time, delta) {
+        //movement
         if (this.cursors.left.isDown) {
             this.spy1.x -=1;
         }
@@ -95,7 +96,8 @@ export default class City extends Phaser.Scene
         }
         if (this.cursors.down.isDown) {
             this.spy1.y += 1;
-        }   
+        } 
+        //movement is within borders  
         if (this.spy1.x > 720) {
             this.spy1.x = 720;
         }
