@@ -74,10 +74,10 @@ export default class City extends Phaser.Scene
         this.alignmentBar.draw();
 
         //spies
-        this.spy1 = new Spy(this, 400, 300, "baddies", 0);
+        this.spy1 = new Spy(this, 400, 300, "baddies", 4);
         //this.spy1.frame = 4;
 
-        this.spy2 = new Spy(this, 480, 300, "baddies", 4); 
+        this.spy2 = new Spy(this, 480, 300, "baddies", 2); 
         //this.spy2.frame = 0;
 
         this.cursors = this.input.keyboard.createCursorKeys();

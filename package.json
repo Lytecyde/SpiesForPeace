@@ -22,5 +22,8 @@
   "devDependencies": {
     "jasmine": "^3.10.0",
     "phaser": "^3.55.2"
+  },
+  "dependencies": {
+    "live-server": "^1.2.2"
   }
 }
