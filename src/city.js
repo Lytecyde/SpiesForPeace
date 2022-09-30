@@ -2,6 +2,7 @@ import Level from "./level.js"
 import AlignmentBar from "./alignmentBar.js"
 import Meeting from "./meeting.js";
 import Spy from "./spy.js";
+import StressBar from "./stressBar.js";
 export default class City extends Phaser.Scene 
 {
     constructor(){
@@ -14,6 +15,7 @@ export default class City extends Phaser.Scene
         this.isInTalks;
         this.meeting;
         this.brush;
+        this.stressBar;
     }
 
     preload() {
@@ -24,7 +26,7 @@ export default class City extends Phaser.Scene
                 frameWidth: 32,
                 frameHeight: 32,
                 margin: 0,
-                spacing: 1
+                spacing: 0
                 
             }
         );
@@ -66,7 +68,7 @@ export default class City extends Phaser.Scene
             0,
             0
             );
-        map.createLayer(0, tileset, 400, 300);
+        map.createLayer(0, tileset, 0, 0);
 
         // alignments by % levels
         this.alignmentBar = new AlignmentBar(this);
@@ -74,11 +76,14 @@ export default class City extends Phaser.Scene
         this.alignmentBar.draw();
 
         //spies
-        this.spy1 = new Spy(this, 400, 300, "baddies", 4);
+        this.spy1 = new Spy(this, 30, 30, "baddies", 4);
         //this.spy1.frame = 4;
 
-        this.spy2 = new Spy(this, 480, 300, "baddies", 2); 
-        //this.spy2.frame = 0;
+        this.spy2 = new Spy(this, 16, 30, "baddies", 2); 
+
+        this.stressBar = new StressBar(this.spy1.x, this.spy1.y, this);
+        this.stressBar.draw();
+        //this.spy2.frame = 2;
 
         this.cursors = this.input.keyboard.createCursorKeys();
     }
@@ -86,10 +91,10 @@ export default class City extends Phaser.Scene
     update (time, delta) {
         //movement
         if (this.cursors.left.isDown) {
-            this.spy1.x -=1;
+            this.spy1.x -= 1;
         }
         if (this.cursors.right.isDown) {
-            this.spy1.x +=1;
+            this.spy1.x += 1;
         }
         if (this.cursors.up.isDown) {
             this.spy1.y -= 1;
@@ -101,15 +106,18 @@ export default class City extends Phaser.Scene
         if (this.spy1.x > 720) {
             this.spy1.x = 720;
         }
-        if (this.spy1.x < 400) {
-            this.spy1.x = 400;
+        if (this.spy1.x < 0) {
+            this.spy1.x = 0;
         }
         if (this.spy1.y > 444) {
             this.spy1.y = 444;
         }
-        if (this.spy1.y < 300) {
-            this.spy1.y = 300;
+        if (this.spy1.y < 0) {
+            this.spy1.y = 0;
         }
+        
+        //
+        this.stressBar.draw(this.spy1.x, this.spy1.y);
         //meeting of spies
         
         this.meeting.isInContact(this.spy1, this.spy2);

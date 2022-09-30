@@ -7,22 +7,34 @@ export default class AlignmentBar {
         this.x = 2;
         this.y = 34;
         this.value = 392;
-        this.p = 100 / 100;
-        this.blackspies = this.value / 40; 
-        this.whitespies = 36 - this.whitespies;    
-
+       
+        this.blackspies = 12; 
+        this.whitespies = 12;    
+        this.grayspies = 1;   
+        this.percentageBlack = this.blackspies / 100;
+        this.percentageWhite = this.whitespies / 100;
+        this.percentageGray = this.grayspies / 100; 
         this.draw();
+        //end message text
         this.text = scene.add.text(32, 64, '', { font: '32px Courier', fill: '#808080' });
         scene.add.existing(this.bar);
     }
 
+    percentages ()
+    {
+        var sum = this.blackspies + this.whitespies + this.grayspies;
+        this.percentageBlack = this.blackspies / sum;
+        this.percentageWhite = this.whitespies / sum;
+        this.percentageGray = this.grayspies / sum; 
+    }
+
     decrease ()
     {
-        this.value -= 60;
+        this.blackspies -= 1;
 
-        if (this.value < 0)
+        if (this.blackspies < 0)
         {
-            this.value = 0;
+            this.blackspies = 0;
             this.end();
         }
     
@@ -42,41 +54,38 @@ export default class AlignmentBar {
         
     }
 
+
+
     draw ()
     {
         this.bar.clear();
-
-        //  BG
-        this.bar.fillStyle(0x000000);
+        this.percentages();
+        //  BG border
+        this.bar.fillStyle(0x000000, 0.1);
         this.bar.fillRect(this.x, this.y, 398, 16);
 
-        //  Health
-
-        this.bar.fillStyle(0xffffff);
-        this.bar.fillRect(this.x + 2, this.y + 2, 394, 12);
-
-        if (this.value < 392)
-        {
-            this.bar.fillStyle(0x808080);
-        }
-        else
-        {
-            this.bar.fillStyle(0x202020);
-        }
-
-        var d = Math.floor(this.p * this.value);
-
-        this.bar.fillRect(this.x + 2, this.y + 2, d, 12);
-
+        //  white
+        this.bar.fillStyle(0xffffff, 0.3);
+        var whitebar = this.bar.fillRect(this.x + 2, this.y + 2, 394, 12);
+        whitebar;
+        //gray
+        this.bar.fillStyle(0x808080, 0.3);
+        var dGray = Math.floor(this.percentageWhite * 4 * 100);
+        var graybar = this.bar.fillRect(this.x + 2, this.y + 2, dGray, 12);
+        graybar;
+        //black
+        this.bar.fillStyle(0x000000, 0.3);
+        var dBlack = Math.floor(this.percentageBlack * 4 * 100);
+        var blackbar = this.bar.fillRect(this.x + 2 + dGray + dBlack, this.y + 2, 394 - dGray - dBlack, 12);
+        blackbar;
     }
 
     end ()
     {
         this.text.setText([
-
-            'END OF DEMO  ' +
-            'Black Spies: ' + this.blackspies +
-            'White Spies: ' + this.whitespies
+            'END ! Gray : ' + this.grayspies +
+            'Black : ' + this.blackspies +
+            'White : ' + this.whitespies
         ]);
         
     }

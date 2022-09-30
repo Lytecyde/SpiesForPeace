@@ -6,7 +6,8 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         this.texture = texture;
         this.f = f;
         scene.add.existing(this);
-
+        this.x = x;
+        this.y = y;
         this.alive = true;
 
         this.trust = 2;
