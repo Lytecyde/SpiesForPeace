@@ -16,6 +16,7 @@ export default class City extends Phaser.Scene
         this.meeting;
         this.brush;
         this.stressBar;
+        this.spyGroup;
     }
 
     preload() {
@@ -76,11 +77,34 @@ export default class City extends Phaser.Scene
         this.alignmentBar.draw();
 
         //spies
-        this.spy1 = new Spy(this, 30, 30, "baddies", 4);
+        this.spy1 = new Spy(this, 30, 30, "baddies", 2);
         //this.spy1.frame = 4;
 
-        this.spy2 = new Spy(this, 16, 30, "baddies", 2); 
+        this.spy2 = new Spy(this, 16, 30, "baddies", 3); 
 
+        var group_config = {
+            classType: Phaser.GameObjects.Sprite,
+            defaultKey: null,
+            defaultFrame: null,
+            active: true,
+            maxSize: -1,
+            runChildUpdate: false,
+            createCallback: null,
+            removeCallback: null,
+            createMultipleCallback: null
+        };   
+
+        this.spyBlackGroup = this.add.group(group_config);    
+        this.spyWhiteGroup = this.add.group(group_config);
+        for (let index = 0; index < 16; index++) {
+            var x = index % 4;
+            x += 1;
+            var y = (index - (index % 4)) / 4;
+            y += 1;
+            this.spyBlackGroup.add(new Spy(this, x * 64, y * 64, "baddies", 0));
+            this.spyWhiteGroup.add(new Spy(this, x * 64 + 32, y * 64, "baddies", 5));
+        }
+        
         this.stressBar = new StressBar(this.spy1.x, this.spy1.y, this);
         this.stressBar.draw();
         //this.spy2.frame = 2;
