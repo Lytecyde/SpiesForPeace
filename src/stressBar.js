@@ -8,10 +8,10 @@ export default class StressBar {
         scene.add.existing(this.bar);
     }
 
-    draw (x, y) {
+    draw () {
         this.bar.clear();
-        this.bar.fillStyle(0xff0000);
-        this.bar.fillRect(x - 8, y - 16 - 3, 16, 3);
+        this.bar.fillStyle(0x00ff00);
+        this.bar.fillRect(this.x - 8, this.y - 16 - 3, 16, 3);
     }
 
 }

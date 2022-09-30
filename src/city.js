@@ -17,6 +17,8 @@ export default class City extends Phaser.Scene
         this.brush;
         this.stressBar;
         this.spyGroup;
+        this.allBlackStressBars = [];
+        this.allWhiteStressBars = [];
     }
 
     preload() {
@@ -107,6 +109,21 @@ export default class City extends Phaser.Scene
         
         this.stressBar = new StressBar(this.spy1.x, this.spy1.y, this);
         this.stressBar.draw();
+
+        //all stressbars
+        var spyblack = this.spyBlackGroup.getChildren();
+        var spywhite = this.spyWhiteGroup.getChildren();
+        for (let index = 0; index < 16; index++) {     
+            this.allBlackStressBars[index] = new StressBar(spyblack[index].x, spyblack[index].y, this);
+            this.allWhiteStressBars[index] = new StressBar(spywhite[index].x, spywhite[index].y, this);
+        }
+
+        for (let index = 0; index < 16; index++) {
+            this.allBlackStressBars[index].draw();
+            this.allWhiteStressBars[index].draw();
+        }
+
+        console.log( this.allBlackStressBars[0]);;
         //this.spy2.frame = 2;
 
         this.cursors = this.input.keyboard.createCursorKeys();
