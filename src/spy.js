@@ -4,13 +4,14 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         super(scene, x, y, texture, f);
         this.scene = scene;
         this.texture = texture;
-        this.f = f;
+        this.f = f; //frame
         scene.add.existing(this);
         this.x = x;
         this.y = y;
         this.alive = true;
-
-        this.trust = 2;
+        this.stress = 5;
+        this.trust = 3;
+        this.desire = [];
         //should have a trust bar
         this.flipped = false;
     }
@@ -42,7 +43,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
     
     convert () {
         this.flipped = true;
-        this.trust = 3; 
+        this.trust = 2; 
     }  
 
     flipSides(alignment) {
@@ -57,4 +58,18 @@ export default class Spy extends Phaser.GameObjects.Sprite {
             this.convert();    
         }   
     }
+    changeCoat () {
+        let baddieIndices = [2, 4];
+        let frameIndex = [4, 2];
+        if (this.f == baddieIndices[0]) {
+            console.log("flipped to 4" + frameIndex);
+            this.setTexture("baddies", frameIndex[0]);    
+            this.f = frameIndex[0];
+        }
+        else {
+            this.setTexture("baddies", frameIndex[1]);    
+            this.f = frameIndex[1];
+        }
+        this.flipped = false;
+    }    
 }

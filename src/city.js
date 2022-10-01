@@ -159,9 +159,22 @@ export default class City extends Phaser.Scene
         
         //
         this.stressBar.draw(this.spy1.x, this.spy1.y);
-        //meeting of spies
+        //meeting of 2spies
         
         this.meeting.isInContact(this.spy1, this.spy2);
+
+        //peacebuilder meeting spies
+        for (let index = 0; index < 16; index++) 
+        {
+            var spy = this.spyBlackGroup.getChildren();
+            this.meeting.isInContact(this.spy1, spy[index]);
+            if (this.meeting.begins)
+            {
+                console.log("al decrease");
+                this.alignmentBar.decrease();
+                spy[index].trustDecrease();
+            }
+        }        
 
         if (this.meeting.begins)
         {
@@ -172,6 +185,7 @@ export default class City extends Phaser.Scene
 
         if(this.spy2.flipped == true) {
             console.log("changed frame " + this.spy2.f);
+            this.spy2.changeCoat();
             let baddieIndices = [2, 4];
             let frameIndex = [4, 2];
             if (this.spy2.f == baddieIndices[0]) {
@@ -184,6 +198,14 @@ export default class City extends Phaser.Scene
                 this.spy2.f = frameIndex[1];
             }
             this.spy2.flipped = false;
+        }
+
+        for (let index = 0; index < 16; index++) {
+            var spyblack = this.spyBlackGroup.getChildren();
+            if(spyblack[index].flipped == true ) {
+                
+                spyblack[index].changeCoat();
+            }
         }
     }
 }
