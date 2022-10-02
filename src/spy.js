@@ -10,7 +10,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         this.y = y;
         this.alive = true;
         this.stress = 5;
-        this.trust = 3;
+        this.trust = 5;
         this.desire = [];
         //should have a trust bar
         this.flipped = false;
@@ -43,7 +43,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
     
     convert () {
         this.flipped = true;
-        this.trust = 2; 
+        this.trust = 5; 
     }  
 
     flipSides(alignment) {

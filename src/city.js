@@ -3,6 +3,7 @@ import AlignmentBar from "./alignmentBar.js"
 import Meeting from "./meeting.js";
 import Spy from "./spy.js";
 import StressBar from "./stressBar.js";
+import TrustBar from "./trustBar.js";
 export default class City extends Phaser.Scene 
 {
     constructor(){
@@ -18,7 +19,9 @@ export default class City extends Phaser.Scene
         this.stressBar;
         this.spyGroup;
         this.allBlackStressBars = [];
+        this.allBlackTrustBars = [];
         this.allWhiteStressBars = [];
+        this.timer = 0;
     }
 
     preload() {
@@ -107,8 +110,13 @@ export default class City extends Phaser.Scene
             this.spyWhiteGroup.add(new Spy(this, x * 64 + 32, y * 64, "baddies", 5));
         }
         
+        //BARS
+        
+        //STRESS
         this.stressBar = new StressBar(this.spy1.x, this.spy1.y, this);
         this.stressBar.draw();
+
+
 
         //all stressbars
         var spyblack = this.spyBlackGroup.getChildren();
@@ -123,13 +131,30 @@ export default class City extends Phaser.Scene
             this.allWhiteStressBars[index].draw();
         }
 
-        console.log( this.allBlackStressBars[0]);;
+        for (let index = 0; index < 16; index++) {
+            this.allBlackStressBars[index].draw();
+        }
+
+        //all trustbars
+        for (let index = 0; index < 16; index++) {     
+            var trust = spyblack[index].trust;
+            this.allBlackTrustBars[index] = new TrustBar(spyblack[index].x, spyblack[index].y, this, trust);
+            
+        }
+
+
+        for (let index = 0; index < 16; index++) {
+            this.allBlackTrustBars[index].draw(5);
+        }    
+
+        
         //this.spy2.frame = 2;
 
         this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     update (time, delta) {
+        this.timer += delta;
         //movement
         if (this.cursors.left.isDown) {
             this.spy1.x -= 1;
@@ -158,11 +183,15 @@ export default class City extends Phaser.Scene
         }
         
         //
-        this.stressBar.draw(this.spy1.x, this.spy1.y);
-        //meeting of 2spies
-        
-        this.meeting.isInContact(this.spy1, this.spy2);
+        this.stressBar.draw(this.spy1.x, this.spy1.y); 
 
+        
+
+        //meeting of 2spies
+        for (let index = 0; index < 16; index++) 
+        {
+            this.meeting.isInContact(this.spy1, this.spy2);
+        }    
         //peacebuilder meeting spies
         for (let index = 0; index < 16; index++) 
         {
@@ -170,19 +199,25 @@ export default class City extends Phaser.Scene
             this.meeting.isInContact(this.spy1, spy[index]);
             if (this.meeting.begins)
             {
-                console.log("al decrease");
+                //console.log("al decrease");
                 this.alignmentBar.decrease();
-                spy[index].trustDecrease();
+                
+                console.log(spy[index].trust);
+                while(this.timer > 1500) {
+                    spy[index].trustDecrease();
+                    this.allBlackTrustBars[index].draw(spy[index].trust);
+                    this.timer -= 1500;
+                }    
             }
         }        
 
         if (this.meeting.begins)
         {
-            console.log("al decrease");
+            //console.log("al decrease");
             this.alignmentBar.decrease();
             this.spy2.trustDecrease();
         }
-
+        //autoconvert opposing player to your side
         if(this.spy2.flipped == true) {
             console.log("changed frame " + this.spy2.f);
             this.spy2.changeCoat();
@@ -203,7 +238,6 @@ export default class City extends Phaser.Scene
         for (let index = 0; index < 16; index++) {
             var spyblack = this.spyBlackGroup.getChildren();
             if(spyblack[index].flipped == true ) {
-                
                 spyblack[index].changeCoat();
             }
         }
