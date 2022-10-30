@@ -376,7 +376,7 @@ export default class City extends Phaser.Scene
             this.spy2.flipped = false;
             //this.textMeetingSymbol.setText("");
         }
-
+        
         for (let index = 0; index < 16; index++) {
             var spyblack = this.spyBlackGroup.getChildren();
             if(spyblack[index].flipped == true ) {

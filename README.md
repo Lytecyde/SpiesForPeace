@@ -5,14 +5,15 @@ spies who do unto each other. End the cold war before one side wins!
 visit and convert every spy to gray civilian so they cannot fight anymore
 
 ## achievements so far
-    1. black spies can be converted
-    2. talk bubble appears during contact and while the process of conversion occurs
+1. black spies can be converted
+2. talk bubble appears during contact and while the process of conversion occurs
     to indicate negotiation, this process is automated at this level
-    3. bombs cause stress at various levels as soon as they appear
+3. bombs cause stress at various levels as soon as they appear
+4. fix the blinking spies  ✅
 
 ## milestones
 1. convert white spies to gray
-2. fix the blinking spies 
+
 3. fix alignment bar to show results of your actions
 4. move spies to start locations
 5. spies get missions and they complete them
