@@ -21,8 +21,10 @@ export default class City extends Phaser.Scene
         this.spyGroup;
         this.allBlackStressBars = [];
         this.allBlackTrustBars = [];
+        this.allWhiteTrustBars = [];
         this.allWhiteStressBars = [];
-        this.timer = 0;
+        this.blackTimer = 0;
+        this.whiteTimer = 0;
         this.bomb;
         this.bombtimer = 0;
         this.bombRespawnTimer = 0;
@@ -30,7 +32,8 @@ export default class City extends Phaser.Scene
         this.city;
         this.textMeetingSymbol;
 
-        this.lastTalkedSpyIndex = 9;
+        this.lastTalkedWhiteSpyIndex = 9;
+        this.lastTalkedBlackSpyIndex = 9;
     }
 
     preload() {
@@ -160,7 +163,6 @@ export default class City extends Phaser.Scene
         //spies
         this.spy1 = new Spy(this, 30, 30, "baddies", 2);
         this.textMeetingSymbol = this.add.text(this.spy1.x , this.spy1.y, '', { font: '32px Courier', fill: '#000000' });
-        //this.spy1.frame = 4;
 
         this.spy2 = new Spy(this, 16, 30, "baddies", 3); 
 
@@ -180,7 +182,7 @@ export default class City extends Phaser.Scene
 
         this.spyBlackGroup = this.add.group(group_config);    
         this.spyWhiteGroup = this.add.group(group_config);
-        //set random locations for each spy 
+        //TODO:set random locations for each spy 
         for (let index = 0; index < 16; index++) {
             var x = index % 4;
             x += 1;
@@ -213,19 +215,18 @@ export default class City extends Phaser.Scene
             this.allWhiteStressBars[index].draw();
         }
 
-        for (let index = 0; index < 16; index++) {
-            this.allBlackStressBars[index].draw();
-        }
-
         //all trustbars
         for (let index = 0; index < 16; index++) {     
             var trust = spyblack[index].trust;
             this.allBlackTrustBars[index] = new TrustBar(spyblack[index].x, spyblack[index].y, this, trust);
-            
+            trust = spywhite[index].trust;
+            this.allWhiteTrustBars[index] = new TrustBar(spywhite[index].x, spywhite[index].y, this, trust);
         }
 
         for (let index = 0; index < 16; index++) {
             this.allBlackTrustBars[index].draw(5);
+            this.allWhiteTrustBars[index].draw(5);
+
         }    
         
         //this.spy2.frame = 2;
@@ -234,7 +235,8 @@ export default class City extends Phaser.Scene
     }
 
     update (time, delta) {
-        this.timer += delta;
+        this.blackTimer += delta;
+        this.whiteTimer += delta;
         //movement
         if (this.cursors.left.isDown) {
             this.spy1.x -= 1;
@@ -314,25 +316,48 @@ export default class City extends Phaser.Scene
             this.meeting.isInContact(this.spy1, this.spy2);
         }    
         //peacebuilder meeting spies
-        var spy = this.spyBlackGroup.getChildren();
+        var spyBlack = this.spyBlackGroup.getChildren();
         for (let index = 0; index < 16; index++) 
         {
-            
-            this.meeting.isInContact(this.spy1, spy[index]);
+            this.meeting = new Meeting(this.spy1, spyBlack[index]);
+            this.meeting.isInContact(this.spy1, spyBlack[index]);
             if (this.meeting.begins)
             { 
                 this.alignmentBar.decrease();
                 //console.log(spy[index].trust);
                 this.textMeetingSymbol.setText("💬");
-                this.lastTalkedSpyIndex = index;    
-                while(this.timer > 1500) {
-                    spy[index].trustDecrease();
-                    this.allBlackTrustBars[index].draw(spy[index].trust);
-                    this.timer -= 1500;
-                   
+                this.lastTalkedBlackSpyIndex = index;    
+                while(this.blackTimer > 1500) {
+                    spyBlack[index].trustDecrease();
+                    this.allBlackTrustBars[index].draw(spyBlack[index].trust);
+                    this.blackTimer -= 1500;
                 }
                 //finish talk if meeting is successful conversion
-                if(spy[index].flipped) {
+                if(spyBlack[index].flipped) {
+                    this.textMeetingSymbol.setText("");
+                }   
+            }     
+        }
+
+        //white spies
+        var spyWhite = this.spyWhiteGroup.getChildren();
+        for (let index = 0; index < 16; index++) 
+        {
+            this.meeting = new Meeting(this.spy1, spyWhite[index]);
+            this.meeting.isInContact(this.spy1, spyWhite[index]);
+            if (this.meeting.begins)
+            { 
+                this.alignmentBar.decrease();
+                //console.log(spy[index].trust);
+                this.textMeetingSymbol.setText("💬");
+                this.lastTalkedWhiteSpyIndex = index;    
+                while(this.whiteTimer > 1500) {
+                    spyWhite[index].trustDecrease();
+                    this.allWhiteTrustBars[index].draw(spyWhite[index].trust);
+                    this.whiteTimer -= 1500;  
+                }
+                //finish talk if meeting is successful conversion
+                if(spyWhite[index].flipped) {
                     this.textMeetingSymbol.setText("");
                 } 
                 
@@ -341,16 +366,17 @@ export default class City extends Phaser.Scene
         }
          
         //stop talk if successful
-        for (let index = 0; index < 16; index++) 
-        {
-            var lastSpy = spy[this.lastTalkedSpyIndex];
-            if(!this.meeting.checkOverlap(this.spy1, lastSpy)) {
-                this.textMeetingSymbol.setText("");
-            }
+        var lastWhiteSpy = spyWhite[this.lastTalkedWhiteSpyIndex];
+        if(!this.meeting.checkOverlap(this.spy1, lastWhiteSpy)) {
+            this.textMeetingSymbol.setText("");
         }
-        
+       
 
-        //spy2
+        var lastBlackSpy = spyBlack[this.lastTalkedBlackSpyIndex];
+        if(!this.meeting.checkOverlap(this.spy1, lastBlackSpy)) {
+            this.textMeetingSymbol.setText("");
+        }
+            //spy2
         if (this.meeting.begins)
         {
             //console.log("al decrease");
@@ -376,12 +402,16 @@ export default class City extends Phaser.Scene
             this.spy2.flipped = false;
             //this.textMeetingSymbol.setText("");
         }
-        
+
+        //change spy
+        var spyblack = this.spyBlackGroup.getChildren();
+        var spywhite = this.spyWhiteGroup.getChildren();
         for (let index = 0; index < 16; index++) {
-            var spyblack = this.spyBlackGroup.getChildren();
             if(spyblack[index].flipped == true ) {
-                spyblack[index].changeCoat();
-                              
+                spyblack[index].changeCoat();              
+            }
+            if(spywhite[index].flipped == true) {
+                spywhite[index].changeCoat();
             }
         }
     }
