@@ -6,7 +6,7 @@ export default class TrustBar {
         this.y = y;
         this.trust = trust;
         this.scene = scene;
-        this.tbar = new Phaser.GameObjects.Rectangle(scene,this.x , this.y - 16 - 3, 1 + (3 * trust), 3 , 0xffffff);        
+        this.tbar = new Phaser.GameObjects.Rectangle(scene, this.x , this.y - 16 - 3, 1 + (3 * trust), 3 , 0xffffff);        
         scene.add.existing(this.tbar);
     }
 

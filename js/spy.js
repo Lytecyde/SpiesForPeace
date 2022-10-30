@@ -12,7 +12,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         this.stress = 5;
         this.trust = 5;
         this.desire = [];
-        //should have a trust bar
+        this.bombs =  3;
         this.flipped = false;
     }
 
@@ -70,6 +70,6 @@ export default class Spy extends Phaser.GameObjects.Sprite {
             this.setTexture("baddies", frameIndex[1]);    
             this.f = frameIndex[1];
         }
-        this.flipped = false;
+        //this.flipped = false;
     }    
 }

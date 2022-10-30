@@ -18,7 +18,7 @@ export default class Game extends Phaser.Scene {
         
         this.cursors = this.input.keyboard.createCursorKeys();
        
-        this.scene.add('city', City, true, { x: 800, y: 600 });
+        this.scene.add('city', City, true, { x: 1000, y: 640 });
     }
      
     update () {

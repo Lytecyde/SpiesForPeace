@@ -4,6 +4,7 @@ import Meeting from "./meeting.js";
 import Spy from "./spy.js";
 import StressBar from "./stressBar.js";
 import TrustBar from "./trustBar.js";
+import CityCreator from "./cityCreator.js";
 export default class City extends Phaser.Scene 
 {
     constructor(){
@@ -22,18 +23,25 @@ export default class City extends Phaser.Scene
         this.allBlackTrustBars = [];
         this.allWhiteStressBars = [];
         this.timer = 0;
+        this.bomb;
+        this.bombtimer = 0;
+        this.bombRespawnTimer = 0;
+        this.bombmade = true;
+        this.city;
+        this.textMeetingSymbol;
+
+        this.lastTalkedSpyIndex = 9;
     }
 
     preload() {
         this.load.spritesheet(
             'city-tiles',
-            '/assets/spritesheet/city32.png',
+            '/assets/tileart/darkcity2.png',
             {
                 frameWidth: 32,
                 frameHeight: 32,
                 margin: 0,
-                spacing: 0
-                
+                spacing: 0    
             }
         );
         this.load.spritesheet(
@@ -45,15 +53,60 @@ export default class City extends Phaser.Scene
                 spacing: 0
             }
         );
+        this.load.spritesheet(
+            'bomb',
+            '/assets/spritesheet/bomb.png',
+            {
+                frameWidth: 16,
+                frameHeight: 16,
+                spacing: 0
+            }
+        );
+        this.load.spritesheet(
+            'explosion',
+            '/assets/spritesheet/explosions.png',
+            {
+                frameWidth: 32,
+                frameHeight: 32,
+                spacing: 0
+            }
+        );
     }   
 
+    createLevelMapCity (scene) 
+    {
+        this.city = new CityCreator();
+        this.city.createCity();
+        var level = this.city.getLevel().slice();
+        const w = 32;
+        const h = 24;
+        let levelMapData = Array.from(Array(w), () => new Array(h));
+        
+        var i = 0;
+        
+        for (let height = 0; height < h; height++) {  
+        for (let width = 0; width < w; width++ ) {
+            levelMapData[height][width] = level[i];
+            i++;
+        }
+        }
+        return levelMapData;
+    } 
+
     create (scene) {
+         
+        var levelMapData = this.createLevelMapCity(scene);
+        var mapCity = this.make.tilemap({data: levelMapData, tileWidth: 32, tileHeight: 32});
+        var tiles = mapCity.addTilesetImage('city-tiles');
+        var layer = mapCity.createLayer(0, tiles, 0, 0);
+
+        
         //contact management at meeting
         this.isInContact = false;
         this.isInTalks = false;
         this.brush = false;
 
-        this.meeting = new Meeting(this.spy1, this.spy2);
+        
         //demo city block
         this.scene = scene;
         let level = new Level();
@@ -64,17 +117,40 @@ export default class City extends Phaser.Scene
             data: m,
             tileWidth: tileSize,
             tileHeight: tileSize,
+
         };
         let map = this.make.tilemap(config);
-        const tileset = map.addTilesetImage(
-            'city-tiles',
-            'city-tiles',
-            32,
-            32,
-            0,
-            0
-            );
-        map.createLayer(0, tileset, 0, 0);
+        /*
+        var avenue = map.addTilesetImage(
+            'city-tiles'
+        );
+
+        var layer = map.createLayer(0, avenue, 0, 0);
+         
+        layer;
+        */    
+        this.anims.create({
+            key: 'bang',
+            frames: this.anims.generateFrameNumbers(
+              'explosion',
+             { start: 0, end: 11 }),
+            defaultTextureKey: null,
+  
+            // time
+            delay: 0,
+            frameRate: 24,
+            duration: null,
+            skipMissedFrames: true,
+  
+            // repeat
+            repeat: 0,
+            repeatDelay: -1,
+            yoyo: false,
+  
+            // visible
+            showOnStart: false,
+            hideOnComplete: true
+          });    
 
         // alignments by % levels
         this.alignmentBar = new AlignmentBar(this);
@@ -83,9 +159,12 @@ export default class City extends Phaser.Scene
 
         //spies
         this.spy1 = new Spy(this, 30, 30, "baddies", 2);
+        this.textMeetingSymbol = this.add.text(this.spy1.x , this.spy1.y, '', { font: '32px Courier', fill: '#000000' });
         //this.spy1.frame = 4;
 
         this.spy2 = new Spy(this, 16, 30, "baddies", 3); 
+
+        this.meeting = new Meeting(this.spy1, this.spy2); 
 
         var group_config = {
             classType: Phaser.GameObjects.Sprite,
@@ -101,6 +180,7 @@ export default class City extends Phaser.Scene
 
         this.spyBlackGroup = this.add.group(group_config);    
         this.spyWhiteGroup = this.add.group(group_config);
+        //set random locations for each spy 
         for (let index = 0; index < 16; index++) {
             var x = index % 4;
             x += 1;
@@ -127,6 +207,8 @@ export default class City extends Phaser.Scene
         }
 
         for (let index = 0; index < 16; index++) {
+            this.allBlackStressBars[index].setStressLevel(5);
+            this.allWhiteStressBars[index].setStressLevel(5);
             this.allBlackStressBars[index].draw();
             this.allWhiteStressBars[index].draw();
         }
@@ -142,11 +224,9 @@ export default class City extends Phaser.Scene
             
         }
 
-
         for (let index = 0; index < 16; index++) {
             this.allBlackTrustBars[index].draw(5);
         }    
-
         
         //this.spy2.frame = 2;
 
@@ -168,6 +248,7 @@ export default class City extends Phaser.Scene
         if (this.cursors.down.isDown) {
             this.spy1.y += 1;
         } 
+        this.textMeetingSymbol.setPosition(this.spy1.x , this.spy1.y - 32);
         //movement is within borders  
         if (this.spy1.x > 720) {
             this.spy1.x = 720;
@@ -185,38 +266,98 @@ export default class City extends Phaser.Scene
         //
         this.stressBar.draw(this.spy1.x, this.spy1.y); 
 
+        //bomb
+        this.bombRespawnTimer += delta;
+        this.bombtimer += delta;
         
+        if(this.bombRespawnTimer > 3000 && this.bombmade)
+        {
+            this.bombmade = false;
+            var randomX = Math.random() * 10;
+            var randomY = Math.random() * 10;  
+            this.bomb = this.physics.add.sprite(randomX * 32, randomY * 32, 'bomb');  
+        } 
 
+        const BOMBTICKTIME = 5000;
+        if (this.bombRespawnTimer > 3000 + BOMBTICKTIME) 
+        {
+            var blast = this.physics.add.sprite(this.bomb.x, this.bomb.y, "explosion"); 
+            blast.play('bang');
+            this.bomb.destroy();
+            this.bombmade = true;
+            this.bombRespawnTimer = 0;
+        } 
+       
+
+
+        //bombeffects
+        for (let index = 0; index < 16; index++) 
+        {
+            var spyStressBar = this.allBlackStressBars[index];
+            if(this.bomb){
+                var stressShock = Math.floor(spyStressBar.stressCausedByBomb(this.bomb.x, this.bomb.y));
+            }
+            console.log(stressShock);
+            spyStressBar.setStressLevel(stressShock);
+            spyStressBar.draw();
+            //overall stress level
+
+            //dead?
+
+            //defuse
+        }
+        
+        
         //meeting of 2spies
         for (let index = 0; index < 16; index++) 
         {
             this.meeting.isInContact(this.spy1, this.spy2);
         }    
         //peacebuilder meeting spies
+        var spy = this.spyBlackGroup.getChildren();
         for (let index = 0; index < 16; index++) 
         {
-            var spy = this.spyBlackGroup.getChildren();
+            
             this.meeting.isInContact(this.spy1, spy[index]);
             if (this.meeting.begins)
-            {
-                //console.log("al decrease");
+            { 
                 this.alignmentBar.decrease();
-                
-                console.log(spy[index].trust);
+                //console.log(spy[index].trust);
+                this.textMeetingSymbol.setText("💬");
+                this.lastTalkedSpyIndex = index;    
                 while(this.timer > 1500) {
                     spy[index].trustDecrease();
                     this.allBlackTrustBars[index].draw(spy[index].trust);
                     this.timer -= 1500;
-                }    
+                   
+                }
+                //finish talk if meeting is successful conversion
+                if(spy[index].flipped) {
+                    this.textMeetingSymbol.setText("");
+                } 
+                
+            }  
+             
+        }
+         
+        //stop talk if successful
+        for (let index = 0; index < 16; index++) 
+        {
+            var lastSpy = spy[this.lastTalkedSpyIndex];
+            if(!this.meeting.checkOverlap(this.spy1, lastSpy)) {
+                this.textMeetingSymbol.setText("");
             }
-        }        
+        }
+        
 
+        //spy2
         if (this.meeting.begins)
         {
             //console.log("al decrease");
             this.alignmentBar.decrease();
             this.spy2.trustDecrease();
-        }
+        } 
+        
         //autoconvert opposing player to your side
         if(this.spy2.flipped == true) {
             console.log("changed frame " + this.spy2.f);
@@ -233,12 +374,14 @@ export default class City extends Phaser.Scene
                 this.spy2.f = frameIndex[1];
             }
             this.spy2.flipped = false;
+            //this.textMeetingSymbol.setText("");
         }
 
         for (let index = 0; index < 16; index++) {
             var spyblack = this.spyBlackGroup.getChildren();
             if(spyblack[index].flipped == true ) {
                 spyblack[index].changeCoat();
+                              
             }
         }
     }
