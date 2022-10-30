@@ -224,9 +224,8 @@ export default class City extends Phaser.Scene
         }
 
         for (let index = 0; index < 16; index++) {
-            this.allBlackTrustBars[index].draw(5);
+            this.allBlackTrustBars[index].draw(0);
             this.allWhiteTrustBars[index].draw(5);
-
         }    
         
         //this.spy2.frame = 2;
@@ -329,7 +328,7 @@ export default class City extends Phaser.Scene
                 this.lastTalkedBlackSpyIndex = index;    
                 while(this.blackTimer > 1500) {
                     spyBlack[index].trustDecrease();
-                    this.allBlackTrustBars[index].draw(spyBlack[index].trust);
+                    this.allBlackTrustBars[index].drawBlack(spyBlack[index].trust);
                     this.blackTimer -= 1500;
                 }
                 //finish talk if meeting is successful conversion
@@ -353,16 +352,14 @@ export default class City extends Phaser.Scene
                 this.lastTalkedWhiteSpyIndex = index;    
                 while(this.whiteTimer > 1500) {
                     spyWhite[index].trustDecrease();
-                    this.allWhiteTrustBars[index].draw(spyWhite[index].trust);
+                    this.allWhiteTrustBars[index].drawWhite(spyWhite[index].trust);
                     this.whiteTimer -= 1500;  
                 }
                 //finish talk if meeting is successful conversion
                 if(spyWhite[index].flipped) {
                     this.textMeetingSymbol.setText("");
                 } 
-                
-            }  
-             
+            }
         }
          
         //stop talk if successful

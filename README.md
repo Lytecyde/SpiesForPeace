@@ -11,11 +11,11 @@ visit and convert every spy to gray civilian so they cannot fight anymore
 3. bombs cause stress at various levels as soon as they appear
 4. fix the blinking spies  ✅
 5. convert white spies to gray ✅
-
+6. black to gray and white to gray indicators ✅
 
 ## milestones
 1. 
-2. black to gray and white to gray indicators
+2. 
 3. fix alignment bar to show results of your actions
 4. move spies to start locations
 5. spies get missions and they complete them

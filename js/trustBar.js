@@ -12,8 +12,26 @@ export default class TrustBar {
 
     draw (trust) {  
         console.log(trust);
-        this.tbar.setSize(4 + (2 * trust), 3);
+        this.tbar.setSize(14, 3);
         var gray = trust * 40 + 50;
+        var color = Phaser.Display.Color.GetColor(gray, gray, gray);
+        this.tbar.setFillStyle(color);
+        this.tbar.active = true;
+    }
+
+    drawBlack (trust) {
+        console.log(trust);
+        this.tbar.setSize(14 - (2 * trust), 3);
+        var gray = ((5 - trust) * - 20  + 255);
+        var color = Phaser.Display.Color.GetColor(gray, gray, gray);
+        this.tbar.setFillStyle(color);
+        this.tbar.active = true;
+    }
+
+    drawWhite (trust) {
+        console.log(trust);
+        this.tbar.setSize(14 - (2 * trust), 3);
+        var gray = (trust) * - 20 + 128;
         var color = Phaser.Display.Color.GetColor(gray, gray, gray);
         this.tbar.setFillStyle(color);
         this.tbar.active = true;
