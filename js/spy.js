@@ -59,17 +59,9 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         }   
     }
     changeCoat () {
-        let baddieIndices = [2, 4];
-        let frameIndex = [4, 2];
-        if (this.f == baddieIndices[0]) {
-            console.log("flipped to 4" + frameIndex);
-            this.setTexture("baddies", frameIndex[0]);    
-            this.f = frameIndex[0];
-        }
-        else {
-            this.setTexture("baddies", frameIndex[1]);    
-            this.f = frameIndex[1];
-        }
-        //this.flipped = false;
-    }    
-}
+        const GRAY = 3;
+        this.setTexture("baddies", GRAY);    
+        this.f = GRAY;
+    }
+    //this.flipped = false;
+}    
