@@ -5,6 +5,7 @@ import Spy from "./spy.js";
 import StressBar from "./stressBar.js";
 import TrustBar from "./trustBar.js";
 import CityCreator from "./cityCreator.js";
+import Alignment from "./alignment.js";
 export default class City extends Phaser.Scene 
 {
     constructor(){
@@ -20,8 +21,6 @@ export default class City extends Phaser.Scene
         this.stressBar;
         this.spyGroup;
         this.allBlackStressBars = [];
-        this.allBlackTrustBars = [];
-        this.allWhiteTrustBars = [];
         this.allWhiteStressBars = [];
         this.blackTimer = 0;
         this.whiteTimer = 0;
@@ -31,7 +30,8 @@ export default class City extends Phaser.Scene
         this.bombmade = true;
         this.city;
         this.textMeetingSymbol;
-
+        this.deadSprite;
+        this.alignment = new Alignment(2);
         this.lastTalkedWhiteSpyIndex = 9;
         this.lastTalkedBlackSpyIndex = 9;
     }
@@ -97,18 +97,17 @@ export default class City extends Phaser.Scene
     } 
 
     create (scene) {
-         
         var levelMapData = this.createLevelMapCity(scene);
         var mapCity = this.make.tilemap({data: levelMapData, tileWidth: 32, tileHeight: 32});
         var tiles = mapCity.addTilesetImage('city-tiles');
         var layer = mapCity.createLayer(0, tiles, 0, 0);
-
         
+        
+
         //contact management at meeting
         this.isInContact = false;
         this.isInTalks = false;
         this.brush = false;
-
         
         //demo city block
         this.scene = scene;
@@ -153,7 +152,7 @@ export default class City extends Phaser.Scene
             // visible
             showOnStart: false,
             hideOnComplete: true
-          });    
+        });    
 
         // alignments by % levels
         this.alignmentBar = new AlignmentBar(this);
@@ -161,10 +160,12 @@ export default class City extends Phaser.Scene
         this.alignmentBar.draw();
 
         //spies
-        this.spy1 = new Spy(this, 30, 30, "baddies", 2);
+        this.spy1 = new Spy(this, 30, 30, "baddies", 2, this.alignment.PEACE);
         this.textMeetingSymbol = this.add.text(this.spy1.x , this.spy1.y, '', { font: '32px Courier', fill: '#000000' });
 
-        this.spy2 = new Spy(this, 16, 30, "baddies", 3); 
+        this.spy2 = new Spy(this, 16, 30, "baddies", 3, this.alignment.PEACE); 
+
+        //this.deadSprite = new Spy(this, 76, 76, "baddies", 6, this.alignment.DEAD);  
 
         this.meeting = new Meeting(this.spy1, this.spy2); 
 
@@ -180,6 +181,7 @@ export default class City extends Phaser.Scene
             createMultipleCallback: null
         };   
 
+        this.spyGroup = this.add.group(group_config);
         this.spyBlackGroup = this.add.group(group_config);    
         this.spyWhiteGroup = this.add.group(group_config);
         //TODO:set random locations for each spy 
@@ -188,8 +190,10 @@ export default class City extends Phaser.Scene
             x += 1;
             var y = (index - (index % 4)) / 4;
             y += 1;
-            this.spyBlackGroup.add(new Spy(this, x * 64, y * 64, "baddies", 0));
-            this.spyWhiteGroup.add(new Spy(this, x * 64 + 32, y * 64, "baddies", 5));
+            var codenameBlack = index;
+            var codenameWhite = index + 16;
+            this.spyGroup.add(new Spy(this, x * 64, y * 64, "baddies", 0, codenameBlack, this.alignment.BLACK));
+            this.spyGroup.add(new Spy(this, x * 64 + 32, y * 64, "baddies", 5, codenameWhite, this.alignment.WHITE));
         }
         
         //BARS
@@ -197,39 +201,7 @@ export default class City extends Phaser.Scene
         //STRESS
         this.stressBar = new StressBar(this.spy1.x, this.spy1.y, this);
         this.stressBar.draw();
-
-
-
-        //all stressbars
-        var spyblack = this.spyBlackGroup.getChildren();
-        var spywhite = this.spyWhiteGroup.getChildren();
-        for (let index = 0; index < 16; index++) {     
-            this.allBlackStressBars[index] = new StressBar(spyblack[index].x, spyblack[index].y, this);
-            this.allWhiteStressBars[index] = new StressBar(spywhite[index].x, spywhite[index].y, this);
-        }
-
-        for (let index = 0; index < 16; index++) {
-            this.allBlackStressBars[index].setStressLevel(5);
-            this.allWhiteStressBars[index].setStressLevel(5);
-            this.allBlackStressBars[index].draw();
-            this.allWhiteStressBars[index].draw();
-        }
-
-        //all trustbars
-        for (let index = 0; index < 16; index++) {     
-            var trust = spyblack[index].trust;
-            this.allBlackTrustBars[index] = new TrustBar(spyblack[index].x, spyblack[index].y, this, trust);
-            trust = spywhite[index].trust;
-            this.allWhiteTrustBars[index] = new TrustBar(spywhite[index].x, spywhite[index].y, this, trust);
-        }
-
-        for (let index = 0; index < 16; index++) {
-            this.allBlackTrustBars[index].draw(0);
-            this.allWhiteTrustBars[index].draw(5);
-        }    
-        
-        //this.spy2.frame = 2;
-
+        //CURSORKEYS
         this.cursors = this.input.keyboard.createCursorKeys();
     }
 
@@ -266,7 +238,9 @@ export default class City extends Phaser.Scene
         
         //
         this.stressBar.draw(this.spy1.x, this.spy1.y); 
-
+        var spies = this.spyGroup.getChildren();
+        var spyBlack = this.spyBlackGroup.getChildren();
+        var spyWhite = this.spyWhiteGroup.getChildren();
         //bomb
         this.bombRespawnTimer += delta;
         this.bombtimer += delta;
@@ -276,104 +250,61 @@ export default class City extends Phaser.Scene
             this.bombmade = false;
             var randomX = Math.random() * 10;
             var randomY = Math.random() * 10;  
-            this.bomb = this.physics.add.sprite(randomX * 32, randomY * 32, 'bomb');  
+            //this.bomb = this.physics.add.sprite(randomX * 128, randomY * 128, 'bomb');
+            this.bomb = this.physics.add.sprite(128, 128, 'bomb');  
         } 
 
         const BOMBTICKTIME = 5000;
         if (this.bombRespawnTimer > 3000 + BOMBTICKTIME) 
         {
             var blast = this.physics.add.sprite(this.bomb.x, this.bomb.y, "explosion"); 
+            //explosion effect for each spy, bombeffects
+            
+            spies.forEach(function(spy){
+                if(this.bomb){
+                    var stressShock = Math.floor(spy.stressBar.stressCausedByBomb(this.bomb.x, this.bomb.y));
+                            //console.log(stressShock);
+                    spy.lifeDecrease(5 - stressShock);
+                    spy.stressBar.setStressLevel(stressShock);
+                    spy.stressBar.draw();
+                    //overall stress level
+    
+                    //dead?
+                    //defuse
+                }
+            },this);
+            
             blast.play('bang');
             this.bomb.destroy();
             this.bombmade = true;
             this.bombRespawnTimer = 0;
         } 
-       
-
-
-        //bombeffects
-        for (let index = 0; index < 16; index++) 
-        {
-            var spyStressBar = this.allBlackStressBars[index];
-            if(this.bomb){
-                var stressShock = Math.floor(spyStressBar.stressCausedByBomb(this.bomb.x, this.bomb.y));
-            }
-            console.log(stressShock);
-            spyStressBar.setStressLevel(stressShock);
-            spyStressBar.draw();
-            //overall stress level
-
-            //dead?
-
-            //defuse
-        }
-        
-        
-        //meeting of 2spies
-        for (let index = 0; index < 16; index++) 
-        {
-            this.meeting.isInContact(this.spy1, this.spy2);
-        }    
         //peacebuilder meeting spies
-        var spyBlack = this.spyBlackGroup.getChildren();
-        for (let index = 0; index < 16; index++) 
-        {
-            this.meeting = new Meeting(this.spy1, spyBlack[index]);
-            this.meeting.isInContact(this.spy1, spyBlack[index]);
+        spies = this.spyGroup.getChildren();
+        spies.forEach(function(spy){
+            this.meeting = new Meeting(this.spy1, spy);
+            this.meeting.isInContact(this.spy1, spy);
             if (this.meeting.begins)
             { 
                 this.alignmentBar.decrease();
                 //console.log(spy[index].trust);
                 this.textMeetingSymbol.setText("💬");
-                this.lastTalkedBlackSpyIndex = index;    
+                //this.lastTalkedBlackSpyIndex = spy.codename;
                 while(this.blackTimer > 1500) {
-                    spyBlack[index].trustDecrease();
-                    this.allBlackTrustBars[index].drawBlack(spyBlack[index].trust);
+                    spy.trustDecrease();
+                    spy.trustBar.drawBlack(spy.trust);
                     this.blackTimer -= 1500;
                 }
                 //finish talk if meeting is successful conversion
-                if(spyBlack[index].flipped) {
+                if(spy.flipped) {
                     this.textMeetingSymbol.setText("");
                 }   
-            }     
-        }
-
-        //white spies
-        var spyWhite = this.spyWhiteGroup.getChildren();
-        for (let index = 0; index < 16; index++) 
-        {
-            this.meeting = new Meeting(this.spy1, spyWhite[index]);
-            this.meeting.isInContact(this.spy1, spyWhite[index]);
-            if (this.meeting.begins)
-            { 
-                this.alignmentBar.decrease();
-                //console.log(spy[index].trust);
-                this.textMeetingSymbol.setText("💬");
-                this.lastTalkedWhiteSpyIndex = index;    
-                while(this.whiteTimer > 1500) {
-                    spyWhite[index].trustDecrease();
-                    this.allWhiteTrustBars[index].drawWhite(spyWhite[index].trust);
-                    this.whiteTimer -= 1500;  
-                }
-                //finish talk if meeting is successful conversion
-                if(spyWhite[index].flipped) {
-                    this.textMeetingSymbol.setText("");
-                } 
             }
-        }
-         
-        //stop talk if successful
-        var lastWhiteSpy = spyWhite[this.lastTalkedWhiteSpyIndex];
-        if(!this.meeting.checkOverlap(this.spy1, lastWhiteSpy)) {
-            this.textMeetingSymbol.setText("");
-        }
+        }, this);
        
+        
 
-        var lastBlackSpy = spyBlack[this.lastTalkedBlackSpyIndex];
-        if(!this.meeting.checkOverlap(this.spy1, lastBlackSpy)) {
-            this.textMeetingSymbol.setText("");
-        }
-            //spy2
+        //ALIGNMENTBAR WORK    
         if (this.meeting.begins)
         {
             //console.log("al decrease");
@@ -381,7 +312,7 @@ export default class City extends Phaser.Scene
             this.spy2.trustDecrease();
         } 
         
-        //autoconvert opposing player to your side
+        //TRY: autoconvert opposing player to your side
         if(this.spy2.flipped == true) {
             console.log("changed frame " + this.spy2.f);
             this.spy2.changeCoat();
@@ -401,15 +332,11 @@ export default class City extends Phaser.Scene
         }
 
         //change spy
-        var spyblack = this.spyBlackGroup.getChildren();
-        var spywhite = this.spyWhiteGroup.getChildren();
-        for (let index = 0; index < 16; index++) {
-            if(spyblack[index].flipped == true ) {
-                spyblack[index].changeCoat();              
-            }
-            if(spywhite[index].flipped == true) {
-                spywhite[index].changeCoat();
-            }
-        }
+        spies.forEach(function(spy) {
+            if(spy.flipped == true ) {
+                spy.changeCoat();              
+            }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+        }, this);
+        
     }
 }

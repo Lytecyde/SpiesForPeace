@@ -14,8 +14,8 @@ visit and convert every spy to gray civilian so they cannot fight anymore
 6. black to gray and white to gray indicators ✅
 
 ## milestones
-1. 
-2. 
+1. REFACTOR spy functions and data bars
+2. player, spy and civilian death from bombs
 3. fix alignment bar to show results of your actions
 4. move spies to start locations
 5. spies get missions and they complete them
@@ -23,6 +23,6 @@ visit and convert every spy to gray civilian so they cannot fight anymore
 7. spies and civilians lose health
 8. spies get stressed 
 9. stressed spies make mistakes 
-
+10. hover on data (health, stress, mission, cover)
 
 # Restart of an earlier Project
