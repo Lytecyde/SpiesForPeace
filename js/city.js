@@ -34,6 +34,7 @@ export default class City extends Phaser.Scene
         this.alignment = new Alignment(2);
         this.lastTalkedWhiteSpyIndex = 9;
         this.lastTalkedBlackSpyIndex = 9;
+        this.tweens;
     }
 
     preload() {
@@ -102,7 +103,7 @@ export default class City extends Phaser.Scene
         var tiles = mapCity.addTilesetImage('city-tiles');
         var layer = mapCity.createLayer(0, tiles, 0, 0);
         
-        
+        var timeline = this.tweens.createTimeline();
 
         //contact management at meeting
         this.isInContact = false;
@@ -160,12 +161,10 @@ export default class City extends Phaser.Scene
         this.alignmentBar.draw();
 
         //spies
-        this.spy1 = new Spy(this, 30, 30, "baddies", 2, this.alignment.PEACE);
+        this.spy1 = new Spy(this, "baddies", 2, 999, this.alignment.PEACE);
         this.textMeetingSymbol = this.add.text(this.spy1.x , this.spy1.y, '', { font: '32px Courier', fill: '#000000' });
 
-        this.spy2 = new Spy(this, 16, 30, "baddies", 3, this.alignment.PEACE); 
-
-        //this.deadSprite = new Spy(this, 76, 76, "baddies", 6, this.alignment.DEAD);  
+        this.spy2 = new Spy(this, "baddies", 3, 700,this.alignment.PEACE);  
 
         this.meeting = new Meeting(this.spy1, this.spy2); 
 
@@ -184,17 +183,81 @@ export default class City extends Phaser.Scene
         this.spyGroup = this.add.group(group_config);
         this.spyBlackGroup = this.add.group(group_config);    
         this.spyWhiteGroup = this.add.group(group_config);
-        //TODO:set random locations for each spy 
-        for (let index = 0; index < 16; index++) {
-            var x = index % 4;
-            x += 1;
-            var y = (index - (index % 4)) / 4;
-            y += 1;
+        //DOING: set random locations for each spy 
+        var numberOfSpies = 3;
+        var timelinesBlack = [];
+        var timelinesWhite = [];
+        for (let index = 0; index < numberOfSpies; index++) {
+            timelinesBlack[index] = this.tweens.createTimeline();
+            timelinesWhite[index] = this.tweens.createTimeline();
             var codenameBlack = index;
-            var codenameWhite = index + 16;
-            this.spyGroup.add(new Spy(this, x * 64, y * 64, "baddies", 0, codenameBlack, this.alignment.BLACK));
-            this.spyGroup.add(new Spy(this, x * 64 + 32, y * 64, "baddies", 5, codenameWhite, this.alignment.WHITE));
+            var blackSpy = new Spy(this, "baddies", 0, codenameBlack, this.alignment.BLACK);
+            this.spyGroup.add(blackSpy);
+            var spy = blackSpy;
+            timelinesBlack[index] = this.tweens.timeline( {
+                targets: spy,
+                duration: 3000 ,
+                ease: 'Linear',
+                loop: -1,
+                tweens:[
+                    {
+                        x: {from:spy.mission.trail.start.x, to:spy.mission.trail.end.x},
+                        y: {from:spy.mission.trail.start.y, to:spy.mission.trail.start.y},
+                    },
+                    {
+                        x: {from:spy.mission.trail.end.x, to:spy.mission.trail.end.x},
+                        y: {from:spy.mission.trail.start.y, to:spy.mission.trail.end.y},
+                    },
+                    {
+                        x: {from:spy.mission.trail.end.x, to:spy.mission.trail.end.x},
+                        y: {from:spy.mission.trail.end.y, to:spy.mission.trail.start.y},
+                    },
+                    {
+                        x: {from:spy.mission.trail.end.x, to:spy.mission.trail.start.x},
+                        y: {from:spy.mission.trail.start.y, to:spy.mission.trail.start.y},
+                    }
+                ]
+                
+            });
+            timelinesBlack[index];
+             
+            var codenameWhite = index + numberOfSpies;
+            var whiteSpy = new Spy(this, "baddies", 5, codenameWhite, this.alignment.WHITE);
+            this.spyGroup.add(whiteSpy);
+            var spy = whiteSpy;
+            timelinesWhite[index] = this.tweens.timeline( {
+                targets: spy,
+                duration: 3000 ,
+                ease: 'Linear',
+                //yoyo: true,
+                loop: -1,
+                tweens:[                    
+                    {
+                        x: {from:spy.mission.trail.start.x, to:spy.mission.trail.end.x},
+                        y: {from:spy.mission.trail.start.y, to:spy.mission.trail.start.y},
+                    },
+                    {
+                        x: {from:spy.mission.trail.end.x, to:spy.mission.trail.end.x},
+                        y: {from:spy.mission.trail.start.y, to:spy.mission.trail.end.y},
+                    },
+                    {
+                        x: {from:spy.mission.trail.end.x, to:spy.mission.trail.end.x},
+                        y: {from:spy.mission.trail.end.y, to:spy.mission.trail.start.y},
+                    },
+                    {
+                        x: {from:spy.mission.trail.end.x, to:spy.mission.trail.start.x},
+                        y: {from:spy.mission.trail.start.y, to:spy.mission.trail.start.y},
+                    }
+                ],  
+            });
+            
+            timelinesWhite[index];
         }
+        //tween MOVEMENTS
+
+        //💭!!
+        
+
         
         //BARS
         
@@ -204,8 +267,30 @@ export default class City extends Phaser.Scene
         //CURSORKEYS
         this.cursors = this.input.keyboard.createCursorKeys();
     }
+    movement(spy) {
+        timeline.add( {
+            targets: spy,
+            x: {from:spy.mission.trail.start.x, to:spy.mission.trail.end.x},
+            //y: {from:spy.mission.trail.start.y, to:spy.mission.trail.start.y},
+            duration: 9000,
+            ease: 'Linear',
+            loop: -1
+        });
+        timeline.add( {
+            targets: spy,
+            //x: {from:spy.mission.trail.end.x, to:spy.mission.trail.end.x},
+            y: {from:spy.mission.trail.start.y, to:spy.mission.trail.end.y},
+            duration: 1000,
+            ease: 'Linear',
+            loop: -1
+        });
+    };
 
     update (time, delta) {
+        //FIXME: start spies at correct locations not 0, 0
+        //FIXME: dead spies fly
+        //TODO: walk direction for trails  
+        //TODO: 
         this.blackTimer += delta;
         this.whiteTimer += delta;
         //movement
@@ -236,11 +321,11 @@ export default class City extends Phaser.Scene
             this.spy1.y = 0;
         }
         
+        //TODO: move all spies
+
         //
         this.stressBar.draw(this.spy1.x, this.spy1.y); 
         var spies = this.spyGroup.getChildren();
-        var spyBlack = this.spyBlackGroup.getChildren();
-        var spyWhite = this.spyWhiteGroup.getChildren();
         //bomb
         this.bombRespawnTimer += delta;
         this.bombtimer += delta;
@@ -268,7 +353,6 @@ export default class City extends Phaser.Scene
                     spy.stressBar.setStressLevel(stressShock);
                     spy.stressBar.draw();
                     //overall stress level
-    
                     //dead?
                     //defuse
                 }
@@ -289,7 +373,7 @@ export default class City extends Phaser.Scene
                 this.alignmentBar.decrease();
                 //console.log(spy[index].trust);
                 this.textMeetingSymbol.setText("💬");
-                //this.lastTalkedBlackSpyIndex = spy.codename;
+                
                 while(this.blackTimer > 1500) {
                     spy.trustDecrease();
                     spy.trustBar.drawBlack(spy.trust);
@@ -309,7 +393,6 @@ export default class City extends Phaser.Scene
         {
             //console.log("al decrease");
             this.alignmentBar.decrease();
-            this.spy2.trustDecrease();
         } 
         
         //TRY: autoconvert opposing player to your side
@@ -335,7 +418,7 @@ export default class City extends Phaser.Scene
         spies.forEach(function(spy) {
             if(spy.flipped == true ) {
                 spy.changeCoat();              
-            }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+            } 
         }, this);
         
     }

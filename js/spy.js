@@ -1,16 +1,16 @@
 import Alignment from "./alignment.js";
+import Mission from "./mission.js";
 import StressBar from "./stressBar.js";
 import TrustBar from "./trustBar.js";
 export default class Spy extends Phaser.GameObjects.Sprite {
-    constructor (scene, x, y, texture, f, codename, alignment)
+    constructor (scene, texture, f, codename, alignment)
     {
-        super(scene, x, y, texture, f);
+        super(scene, 0, 0, texture, f);
         this.scene = scene;
         this.texture = texture;
         this.f = f; //frame from the spritesheet
         scene.add.existing(this);
-        this.x = x;
-        this.y = y;
+        
         this.alive = true; 
         //DATA
         this.health = 20;
@@ -21,11 +21,24 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         this.bombs =  3;
         this.flipped = false;
         this.alignment = new Alignment(alignment);
-        this.stressBar = new StressBar(x, y, this.scene);
-        this.trustBar = new TrustBar(x, y, this.scene, this.trust);
-        //scene.add(this.trustBar);
+        this.mission = new Mission(codename);
+        //this.mission.trail(codename);
+        this.x = this.setLocationX() * 32;
+        this.y = this.setLocationY() * 32;
+        this.stressBar = new StressBar(this.x, this.y, this.scene);
+        this.trustBar = new TrustBar(this.x, this.y, this.scene, this.trust);
         
     }
+
+    setLocationX() {
+        return this.mission.trail.start.x;
+    }
+
+    setLocationY() {
+        return this.mission.trail.start.y;
+    }
+
+    
 
     moveX (n) {
         this.x += n;
