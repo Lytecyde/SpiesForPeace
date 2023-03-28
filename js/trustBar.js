@@ -10,6 +10,15 @@ export default class TrustBar extends Phaser.GameObjects.Rectangle {
         scene.add.existing(this);
     }
 
+    draw () {  
+        this.setSize(14, 3);
+        var gray = this.trust * 40 + 50;
+        var color = Phaser.Display.Color.GetColor(gray, gray, gray);
+        this.setFillStyle(color);
+        this.active = true;
+        this.scene.add.existing(this);
+    }
+
     draw (trust) {  
         console.log(trust);
         this.setSize(14, 3);
@@ -19,6 +28,8 @@ export default class TrustBar extends Phaser.GameObjects.Rectangle {
         this.active = true;
         this.scene.add.existing(this);
     }
+
+
 
     drawBlack (trust) {
         console.log(trust);

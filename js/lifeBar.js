@@ -1,13 +1,13 @@
-export default class StressBar extends Phaser.GameObjects.Rectangle {
+export default class LifeBar extends Phaser.GameObjects.Rectangle {
 
     constructor (x, y, scene)
     {
         super(scene, 0, 0, 16, 3, 0x00ff00);
         this.x = x;
-        this.y = y - 16;
+        this.y = y - 19;
         this.scene = scene;
         scene.add.existing(this);
-        this.setStressLevel(5);
+        this.setLevel(5);
         this.setFillStyle(0x00ff00);
     }
 
@@ -16,33 +16,24 @@ export default class StressBar extends Phaser.GameObjects.Rectangle {
         this.scene.add.existing(this);
     }
 
-    setStressLevel (stress) {
+    setLevel(life) {
         //red
         this.setFillStyle(0xff0000);
         this.setSize(3, 3);
         //green
-        if (stress > 3) {
+        if (life > 3) {
             this.setFillStyle(0x00ff00);
             this.setSize(12, 3);
 
             return;
         }
         ///yellow
-        if (stress > 1) {
+        if (life > 1) {
             this.setFillStyle(0xffff00);
             this.setSize(6, 3);
 
             return;
         }
     }
-    
-    stressCausedByBomb(bombX, bombY) {
-        var dX = Math.abs(bombX - this.x);
-        var dY = Math.abs(bombY - this.y);
-        var shortestDistance = Math.sqrt(dX * dX + dY * dY);
-        const BOMBSIZE = 4;
-        var stressFactor = shortestDistance  * BOMBSIZE /  32 ;
 
-        return stressFactor;
-    }
 }
