@@ -344,7 +344,7 @@ export default class City extends Phaser.Scene
                     spy.trustBar.drawBlack(spy.trust);
                     this.blackTimer -= 1500;
                 }
-                //finish talk if meeting is successful conversion
+                //finish talk if meeting ends with a successful conversion
                 if(spy.flipped) {
                     this.textMeetingSymbol.setText("");
                 }   
@@ -369,7 +369,7 @@ export default class City extends Phaser.Scene
         if(this.spy2.flipped == true) {
             console.log("changed frame " + this.spy2.f);
             this.spy2.changeCoat();
-            let baddieIndices = [2, 4];
+            let baddieIndices = [2, 4];//spy sprite frames
             let frameIndex = [4, 2];
             if (this.spy2.f == baddieIndices[0]) {
                 console.log("flipped to 4" + frameIndex);

@@ -7,12 +7,12 @@ export default class Job {
     }
 
     setRandomTitle() {
-        var titles = ["Banker", "Programmer", "Police", "Salesman", "Artist"];
+        var titles = ["Banker", "Programmer", "Police", "Businessman", "Celebrity", "Artist"];
         return titles[this.type];
     }
 
     setResource() {
-        var resources = ["money", "information", "force", "contacts", "fun"];
+        var resources = ["money", "information", "force", "cooperation", "contacts", "fun"];
         return resources[this.type];
     }
     

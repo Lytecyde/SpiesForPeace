@@ -68,27 +68,33 @@ export default class Spy extends Phaser.GameObjects.Sprite {
 
     movementRight() {
         var spy = this;
+        console.log("dist x" + spy.mission.trail.distanceX);
+        console.log("dist y" + spy.mission.trail.distanceY);
         this.tween = this.scene.tweens.timeline( {
                 targets: spy,
-                duration: Math.floor(spy.mission.trail.distanceX * 5), //spy.mission.trail.distance,
+                duration: 80, 
                 ease: 'Linear',
                 yoyo: false,
                 //repeat: -1,
                 loop: -1,
                 tweens:[                    
                     {
+                        duration: 8 * spy.mission.trail.distanceX,
                         x: {from:spy.mission.trail.start.x, to:spy.mission.trail.end.x},
                         y: {from:spy.mission.trail.start.y, to:spy.mission.trail.start.y},
                     },
                     {
+                        duration: 8 * spy.mission.trail.distanceY,
                         x: {from:spy.mission.trail.end.x, to:spy.mission.trail.end.x},
                         y: {from:spy.mission.trail.start.y, to:spy.mission.trail.end.y},
                     },
                     {
+                        duration: 8 * spy.mission.trail.distanceY, 
                         x: {from:spy.mission.trail.end.x, to:spy.mission.trail.end.x},
                         y: {from:spy.mission.trail.end.y, to:spy.mission.trail.start.y},
                     },
                     {
+                        duration: 8 * spy.mission.trail.distanceX,
                         x: {from:spy.mission.trail.end.x, to:spy.mission.trail.start.x},
                         y: {from:spy.mission.trail.start.y, to:spy.mission.trail.start.y},
                     }
@@ -100,9 +106,11 @@ export default class Spy extends Phaser.GameObjects.Sprite {
 
     movementLeft() {
         var spy = this;
+        console.log("dist x" + spy.mission.trail.distanceX);
+        console.log("dist y" + spy.mission.trail.distanceY);
         this.tween = this.scene.tweens.timeline( {
             targets: spy,
-            duration: Math.floor(spy.mission.trail.distanceY * 5),
+            duration: 80,
             //hold: Math.random() * 800,
             ease: 'Linear',
             yoyo: false,
@@ -111,21 +119,25 @@ export default class Spy extends Phaser.GameObjects.Sprite {
             tweens:[              
                 //go left      
                 {
+                    duration: 8 * spy.mission.trail.distanceX,    
                     x: {from:spy.mission.trail.end.x, to:spy.mission.trail.start.x},
                     y: {from:spy.mission.trail.start.y, to:spy.mission.trail.start.y},
                 },
                 //go down
                 {
+                    duration: 8 * spy.mission.trail.distanceY, 
                     x: {from:spy.mission.trail.start.x, to:spy.mission.trail.start.x},
                     y: {from:spy.mission.trail.start.y, to:spy.mission.trail.end.y},
                 },
                 //go up
                 {
+                    duration: 8 * spy.mission.trail.distanceY, 
                     x: {from:spy.mission.trail.start.x, to:spy.mission.trail.start.x},
                     y: {from:spy.mission.trail.end.y, to:spy.mission.trail.start.y},
                 },
                 //go right
                 {
+                    duration: 8 * spy.mission.trail.distanceX, 
                     x: {from:spy.mission.trail.start.x, to:spy.mission.trail.end.x},
                     y: {from:spy.mission.trail.start.y, to:spy.mission.trail.start.y},
                 }
