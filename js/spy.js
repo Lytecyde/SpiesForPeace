@@ -71,6 +71,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         console.log("dist x" + spy.mission.trail.distanceX);
         console.log("dist y" + spy.mission.trail.distanceY);
         this.tween = this.scene.tweens.timeline( {
+                delay:  Math.floor(Math.random()* 800),
                 targets: spy,
                 duration: 80, 
                 ease: 'Linear',
@@ -109,9 +110,10 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         console.log("dist x" + spy.mission.trail.distanceX);
         console.log("dist y" + spy.mission.trail.distanceY);
         this.tween = this.scene.tweens.timeline( {
+            delay:  Math.floor(Math.random()* 800),
             targets: spy,
             duration: 80,
-            //hold: Math.random() * 800,
+            hold: Math.random() * 80,
             ease: 'Linear',
             yoyo: false,
             loop: -1,

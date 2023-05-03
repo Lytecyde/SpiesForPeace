@@ -7,6 +7,7 @@ import TrustBar from "./trustBar.js";
 import CityCreator from "./cityCreator.js";
 import Alignment from "./alignment.js";
 import LifeBar from "./lifeBar.js";
+import Bombing from "./bombing.js";
 export default class City extends Phaser.Scene 
 {
     constructor(){
@@ -27,11 +28,13 @@ export default class City extends Phaser.Scene
         this.allWhiteStressBars = [];
         this.blackTimer = 0;
         this.whiteTimer = 0;
+        this.blastImage;
         this.bombers = [];
         this.bomb;
         this.bombtimer = 0;
         this.bombRespawnTimer = 0;
         this.bombmade = true;
+        this.bombing;
         this.city;
         this.textMeetingSymbol;
         this.deadSprite;
@@ -102,6 +105,10 @@ export default class City extends Phaser.Scene
         return levelMapData;
     } 
 
+    countBombers() {
+        const bombers = this.spies.filter(spy => spy.mission.operation.title === 'bomber').length;
+    }
+
     create (scene) {
         var levelMapData = this.createLevelMapCity(scene);
         var mapCity = this.make.tilemap({data: levelMapData, tileWidth: 32, tileHeight: 32});
@@ -158,6 +165,8 @@ export default class City extends Phaser.Scene
         this.alignmentBar.decrease();
         this.alignmentBar.draw();
 
+        
+
         //spies
         this.spy1 = new Spy(this, "baddies", 2, 900, this.alignment.PEACE);
         this.textMeetingSymbol = this.add.text(this.spy1.x , this.spy1.y, '', { font: '32px Courier', fill: '#000000' });
@@ -209,8 +218,20 @@ export default class City extends Phaser.Scene
             timelinesWhite[index] = randomwhite > 0.5 ? spy.movementRight() : spy.movementLeft(); 
             timelinesWhite[index];
         }
-        //tween MOVEMENTS
-        
+        //spies
+
+        this.spies = this.spyGroup.getChildren();
+
+
+        this.spies.forEach( (spy) => {
+            if(spy.mission.operation.title == "bomber") {
+                this.bombers.push(spy);
+            }
+            //TEST all are bombers
+            else {
+                //this.bombers.push(spy);
+            }
+        });
         
         //💭!!
                 
@@ -225,9 +246,12 @@ export default class City extends Phaser.Scene
         this.lifeBar.draw();
         //CURSORKEYS
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.bombing = new Bombing(scene);
     }//CREATE() ENDS
       
-    
+    playBang() {
+        this.blastImage.play('bang');
+    }
     
 
     update (time, delta) {
@@ -264,33 +288,15 @@ export default class City extends Phaser.Scene
         }
         if (this.spy1.y < 0) {
             this.spy1.y = 0;
-        }
-        
-       
+        }   
 
         //
         this.stressBar.draw(this.spy1.x, this.spy1.y); 
         this.lifeBar.draw(this.spy1.x, this.spy1.y)
 
-        var spies = this.spyGroup.getChildren();
-
-        
-
         //bomb
         this.bombRespawnTimer += delta;
         this.bombtimer += delta;
-
-        spies.forEach( (s) => {
-            if(s.mission.operation.title == "bomber") {
-               
-                this.bombers.push(s);
-            }
-            //TEST all are bombers
-            else {
-                this.bombers.push(s);
-            }
-        });
-
        
 
         //console.log("bombers" + this.bombers.length);
@@ -301,36 +307,20 @@ export default class City extends Phaser.Scene
             var random = Math.floor(Math.random() * this.bombers.length);
             var bomber = this.bombers[random];
             //this.bomb = this.physics.add.sprite(randomX * 128, randomY * 128, 'bomb');
-            if(this.bombers.length > 0) {
+            if(this.countBombers() > 0) {
                 this.bomb = this.physics.add.sprite(bomber.x, bomber.y, 'bomb');  
                 console.log("bomb placed " + bomber.x + "  "  + bomber.y);
+                this.blastImage = this.physics.add.sprite(this.bomb.x, this.bomb.y, "explosion");
             }
         } 
 
-        const BOMBTICKTIME = 5000;
-        if ((this.bombRespawnTimer > 3000 + BOMBTICKTIME ) && this.bombers.length > 0)
-        {
-            var blast = this.physics.add.sprite(this.bomb.x, this.bomb.y, "explosion"); 
-            //explosion effect for each spy, bombeffects
-            
-            spies.forEach(function(spy){
-                if(this.bomb){
-                    var stressShock = Math.floor(spy.stressBar.stressCausedByBomb(this.bomb.x, this.bomb.y));
-                    console.log("stressishokk" + stressShock);
-                    spy.lifeDecrease(stressShock);
-                    //overall stress level
-                    //defuse?
-                }
-            }, this);
-            
-            blast.play('bang');
-            this.bomb.destroy();
-            this.bombmade = true;
-            this.bombRespawnTimer = 0;
-        } 
-        //peacebuilder meeting spies
-        spies = this.spyGroup.getChildren();
-        spies.forEach(function(spy){
+        //(this)scene, spies, bomb, bombmade
+        
+        //peacebuilder meeting spies and converting them
+       
+
+
+        this.spies.forEach(function(spy){
             this.meeting = new Meeting(this.spy1, spy);
             this.meeting.isInContact(this.spy1, spy);
             if (this.meeting.begins) 
@@ -352,7 +342,10 @@ export default class City extends Phaser.Scene
            
         }, this);
 
-        spies.forEach(function(spy){
+        //refactor:
+        this.bombing.blast(this.spies, this.bomb, this.blastImage, this.bombRespawnTimer, this.bombers.length);
+
+        this.spies.forEach(function(spy){
             spy.hoverIndicators();
         }, this);
        
@@ -385,7 +378,7 @@ export default class City extends Phaser.Scene
         }
 
         //change spy
-        spies.forEach(function(spy) {
+        this.spies.forEach(function(spy) {
             if(spy.flipped == true ) {
                 spy.changeCoat();              
             } 
