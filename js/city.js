@@ -8,6 +8,7 @@ import CityCreator from "./cityCreator.js";
 import Alignment from "./alignment.js";
 import LifeBar from "./lifeBar.js";
 import Bombing from "./bombing.js";
+import Bomb from "./bomb.js";
 export default class City extends Phaser.Scene 
 {
     constructor(){
@@ -43,6 +44,9 @@ export default class City extends Phaser.Scene
         this.lastTalkedBlackSpyIndex = 9;
         this.tweens;
         this.graphics;
+        this.bombs =[];
+        this.monitoring;
+        this.monitoringText = "HELLO, WORLD MONITOR";
     }
 
     preload() {
@@ -107,6 +111,8 @@ export default class City extends Phaser.Scene
 
     countBombers() {
         const bombers = this.spies.filter(spy => spy.mission.operation.title === 'bomber').length;
+        console.log(bombers);
+        return bombers;
     }
 
     create (scene) {
@@ -135,30 +141,8 @@ export default class City extends Phaser.Scene
         };
         let map = this.make.tilemap(config);
     
-            
-        this.anims.create({
-            key: 'bang',
-            frames: this.anims.generateFrameNumbers(
-              'explosion',
-             { start: 0, end: 11 }
-             ),
-            defaultTextureKey: null,
-  
-            // time
-            delay: 0,
-            frameRate: 24,
-            duration: null,
-            skipMissedFrames: true,
-  
-            // repeat
-            repeat: 0,
-            repeatDelay: -1,
-            yoyo: false,
-  
-            // visible
-            showOnStart: false,
-            hideOnComplete: true
-        });    
+        this.monitoring = this.add.text(600, 50, this.monitoringText, {fontSize: '32px', color: '#000000', backgroundColor: '#ffffff'});
+        this.add.existing(this.monitoring);
 
         // alignments by % levels
         this.alignmentBar = new AlignmentBar(this);
@@ -223,15 +207,7 @@ export default class City extends Phaser.Scene
         this.spies = this.spyGroup.getChildren();
 
 
-        this.spies.forEach( (spy) => {
-            if(spy.mission.operation.title == "bomber") {
-                this.bombers.push(spy);
-            }
-            //TEST all are bombers
-            else {
-                //this.bombers.push(spy);
-            }
-        });
+        this.makeBombers();
         
         //💭!!
                 
@@ -246,18 +222,23 @@ export default class City extends Phaser.Scene
         this.lifeBar.draw();
         //CURSORKEYS
         this.cursors = this.input.keyboard.createCursorKeys();
-        this.bombing = new Bombing(scene);
     }//CREATE() ENDS
-      
-    playBang() {
-        this.blastImage.play('bang');
+
+    makeBombers(){  
+        this.bombers = []
+        this.spies.forEach( (spy) => {
+            if(spy.mission.operation.title == "bomber") {
+                this.bombers.push(spy); 
+            }
+        });
+        //shuffle the array
+        this.bombers = this.bombers.sort((a, b) => 0.5 - Math.random());
     }
-    
 
     update (time, delta) {
         
-        //FIXME: dead spies fly
-        
+        this.monitoringText = this.bombers.length;
+        this.monitoring.setText(this.monitoringText);
         //graphics.clear();
         
         this.blackTimer += delta;
@@ -300,26 +281,27 @@ export default class City extends Phaser.Scene
        
 
         //console.log("bombers" + this.bombers.length);
-        var respawnTime = 3000;//(Math.floor(Math.random() * 15) * 100) + 1500;
-        if(this.bombRespawnTimer > respawnTime && this.bombmade)
+        var respawnTimeTEST = 3000;//(Math.floor(Math.random() * 15) * 100) + 1500;
+        if(this.bombRespawnTimer > respawnTimeTEST && this.bombmade)
         {
             this.bombmade = false;
-            var random = Math.floor(Math.random() * this.bombers.length);
-            var bomber = this.bombers[random];
-            //this.bomb = this.physics.add.sprite(randomX * 128, randomY * 128, 'bomb');
+            //pick a bomber from those remaining spies
+            this.makeBombers(); 
+            console.log(this.countBombers());
+            var bomberIndex = Math.floor(Math.random() * this.countBombers());
+            var bomber = this.bombers[bomberIndex];
             if(this.countBombers() > 0) {
-                this.bomb = this.physics.add.sprite(bomber.x, bomber.y, 'bomb');  
+                console.log(" bomber " + bomberIndex + " places the bomb");
+                this.bomb = new Bomb(this, bomber.x, bomber.y, 'bomb');
+                this.add.existing(this.bomb);
+                this.bombing = new Bombing(this, bomber.x, bomber.y);
                 console.log("bomb placed " + bomber.x + "  "  + bomber.y);
-                this.blastImage = this.physics.add.sprite(this.bomb.x, this.bomb.y, "explosion");
+                this.bombing.blast(this.spies, this.bombRespawnTimer, time); 
             }
+            this.bombRespawnTimer = 0;
         } 
-
-        //(this)scene, spies, bomb, bombmade
-        
+ 
         //peacebuilder meeting spies and converting them
-       
-
-
         this.spies.forEach(function(spy){
             this.meeting = new Meeting(this.spy1, spy);
             this.meeting.isInContact(this.spy1, spy);
@@ -339,17 +321,13 @@ export default class City extends Phaser.Scene
                     this.textMeetingSymbol.setText("");
                 }   
             }
-           
         }, this);
 
         //refactor:
-        this.bombing.blast(this.spies, this.bomb, this.blastImage, this.bombRespawnTimer, this.bombers.length);
 
         this.spies.forEach(function(spy){
             spy.hoverIndicators();
         }, this);
-       
-        
 
         //ALIGNMENTBAR WORK    
         if (this.meeting.begins)

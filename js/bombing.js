@@ -1,8 +1,6 @@
-import City from "./city.js";
-export default class Bombing extends City {
-    constructor(scene) {
-        super();
-        this.scene = scene;
+export default class Bombing extends Phaser.GameObjects.Sprite {
+    constructor(scene, x, y) {
+        super(scene, x, y);
         //plan bomb
         //start bomb
         //leave bomb
@@ -12,35 +10,68 @@ export default class Bombing extends City {
         //stress effect
         //health effect
         //deathCheck 
-        this.bombRespawnTimer = super.bombRespawnTimer;
+        this.x = x;
+        this.y = y;
+        this.lastBlastTime;
+        scene.add.existing(this);
+        this.BOMBTICKTIME = 3000;
+        this.anims.create({
+            key: 'bang',
+            frames: this.anims.generateFrameNumbers(
+              'explosion',
+             { start: 0, end: 11 }
+             ),
+            defaultTextureKey: null,
+  
+            // time
+            delay: 0,
+            frameRate: 24,
+            duration: null,
+            skipMissedFrames: true,
+  
+            // repeat
+            repeat: 0,
+            repeatDelay: -1,
+            yoyo: false,
+  
+            // visible
+            showOnStart: false,
+            hideOnComplete: true
+        });  
     }
 
-    blast( spies, bomb, blastImage, respawnTimer, countBombers ) {
-        
-        const BOMBTICKTIME = 5000;
-        if ((respawnTimer > 3000 + BOMBTICKTIME ) && countBombers > 0)
-        {   //explosion effect for each spy, bombeffects
+    blast( spies, respawnTimer, time ) {     
+        const BOMBTICKTIME = 3000;
+        if (respawnTimer > BOMBTICKTIME){
+            console.log(respawnTimer);
+          //explosion effect 
+            this.play('bang');
+            //effects for each spy
             spies.forEach(function(spy){
-                if(bomb){
-                    var stressShock = Math.floor(spy.stressBar.stressCausedByBomb(bomb.x, bomb.y));
-                    console.log("stress shock: " + stressShock);
-                    spy.lifeDecrease(stressShock);
-                    //overall stress level
-                    //defuse?
-                }
+                var stressShock = Math.floor(spy.stressBar.stressCausedByBomb(this.x, this.y));
+                console.log("stress shock: " + stressShock);
+                this.blastEffects(spy, stressShock);
             }, this);
             
-            //super.bomb.destroy();
-            //this.scene.bombmade = true;
-            this.resetBombRespawnTimer();
-        } 
+            this.scene.bomb.destroy();
+            if(this.scene.countBombers() > 0) {
+                this.scene.bombmade = true;
+            }   
+            this.lastBlastTime = time;
+        }        
     }
 
     updateBombRespawnTimer() {
 
     }
 
-    resetBombRespawnTimer() {
-        super.bombRespawnTimer = 0;
+    blastEffects(spy, stressShock) {
+        //spies
+        console.log("blast effects");
+        spy.stressBar.setLevel(spy.stress);
+        spy.lifeBar.setLevel(spy.health);
+        spy.lifeDecrease(stressShock);
+        spy.stressDecrease(stressShock);
+        //scenery
     }
 }

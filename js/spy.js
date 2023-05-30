@@ -15,7 +15,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         
         this.alive = true; 
         //DATA
-        this.health = 4;
+        this.health = 5;
         this.codename = codename;
         this.stress = 5;
         this.trust = 5;
@@ -42,21 +42,43 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         return this.mission.trail.start.y;
     }
 
-    hoverIndicators() {
+    refreshIndicators(stress, lifeDecrease) {
+        this.stress = stress;
+        this.health = this.health - lifeDecrease;
+    }
+
+    hoverStressBar() {
         this.stressBar.x = this.x;
-        this.stressBar.y = this.y - 12;
+        this.stressBar.y = this.y - 16;
         this.stressBar.draw(this.stress);
+    }
 
+    hoverLifeBar() {
         this.lifeBar.x =this.x;
-        this.lifeBar.y = this.y - 16;
+        this.lifeBar.y = this.y - 20;
         this.lifeBar.draw(this.health);
+    }
 
+    hoverTrustBar() {
         this.trustBar.x = this.x;
-        this.trustBar.y = this.y;
+        this.trustBar.y = this.y -24;
         this.trustBar.draw(this.trust);
     }
 
-    moveX (n) {
+    hoverIndicators() {
+        console.log("health " + this.health + "   stress" + this.stress);
+        this.hoverStressBar();
+        this.hoverLifeBar();
+        this.hoverTrustBar();
+    }
+
+    removeHoverIndicators() {
+        this.stressBar.destroy();
+        this.lifeBar.destroy();
+        this.trustBar.destroy();
+    }
+
+    moveX(n) {
         this.x += n;
        
     }
@@ -157,10 +179,6 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         new Bombing();
     }
 
-    stress () {
-
-    }
-
     dead () {
         this.alive = false;
         this.setActive(false);
@@ -168,6 +186,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         this.setTexture("baddies", this.alignment.DEADBLACK);
         this.setTexture("baddies", this.alignment.DEADWHITE);
         //this.tween.stop();
+        this.removeHoverIndicators();
         this.destroy();
     }
     
@@ -180,8 +199,20 @@ export default class Spy extends Phaser.GameObjects.Sprite {
 
     }
 
+    stressDecrease (stressShock) {
+        if(this.stress > 0) {
+
+            this.stress -= 2;
+        }
+        else {
+            console.log("dead stressed spy");
+            //this.dead();    
+        }
+    }
+
     trustDecrease () {
         if(this.trust > 0) {
+            
             this.trust -= 1;
         }
         else {
@@ -191,7 +222,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
 
     lifeDecrease (damage) {
         if(this.health > 0) {
-            this.health -= damage;
+            this.health -= 1;
         }
         else {
             console.log("dead spy");
@@ -204,7 +235,5 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         this.setTexture("baddies", GRAY);    
         this.f = GRAY;
     }
-
-    
     //this.flipped = false;
 }    

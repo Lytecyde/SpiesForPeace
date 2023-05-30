@@ -35,5 +35,14 @@ export default class LifeBar extends Phaser.GameObjects.Rectangle {
             return;
         }
     }
+    
+    lifeDecreaseCausedByBomb(bombX, bombY) {
+        var dX = Math.abs(bombX - this.x);
+        var dY = Math.abs(bombY - this.y);
+        var shortestDistance = Math.sqrt(dX * dX + dY * dY);
+        const BOMBSIZE = 4800;
+        var lifeDecrease =  BOMBSIZE /  (32 * shortestDistance);
 
+        return lifeDecrease;
+    }
 }
