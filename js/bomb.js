@@ -85,7 +85,11 @@ export default class Bomb extends Phaser.GameObjects.Sprite {
     }
 
     applyToSpiesNearby() {
-        this.scene.spies.forEach(function(spy){
+        var aggressives = this.scene.spies.filter(function(spy){
+            return spy.mission.operation.title !== "peaceworker";
+        });
+
+        aggressives.forEach(function(spy){
             var stressShock = Math.floor(spy.stressBar.stressCausedByBomb(this.x, this.y, spy.x, spy.y));
             console.log("stress shock: " + stressShock);
             this.blastEffects(spy, stressShock);

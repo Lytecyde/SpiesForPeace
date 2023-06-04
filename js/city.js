@@ -322,7 +322,7 @@ export default class City extends Phaser.Scene
                 //finish talk if meeting ends with a successful conversion
                 if(spy.flipped) {
                     this.textMeetingSymbol.setText("");
-                    spy.mission.operation.title = "peacework";
+                    spy.mission.operation.title = "peaceworker";
                 }   
             }
         }, this);
