@@ -7,7 +7,6 @@ import TrustBar from "./trustBar.js";
 import CityCreator from "./cityCreator.js";
 import Alignment from "./alignment.js";
 import LifeBar from "./lifeBar.js";
-import Bombing from "./bombing.js";
 import Bomb from "./bomb.js";
 export default class City extends Phaser.Scene 
 {
@@ -34,8 +33,8 @@ export default class City extends Phaser.Scene
         this.bomb;
         this.bombtimer = 0;
         this.bombRespawnTimer = 0;
+        this.BOMBTICKTIME = 3000;
         this.bombmade = true;
-        this.bombing;
         this.city;
         this.textMeetingSymbol;
         this.deadSprite;
@@ -277,14 +276,12 @@ export default class City extends Phaser.Scene
 
         //bomb
         this.bombRespawnTimer += delta;
-        this.bombtimer += delta;
-       
-
+        time = time + delta;
         //console.log("bombers" + this.bombers.length);
         var respawnTimeTEST = 3000;//(Math.floor(Math.random() * 15) * 100) + 1500;
         if(this.bombRespawnTimer > respawnTimeTEST && this.bombmade)
         {
-            this.bombmade = false;
+            
             //pick a bomber from those remaining spies
             this.makeBombers(); 
             console.log(this.countBombers());
@@ -294,13 +291,19 @@ export default class City extends Phaser.Scene
                 console.log(" bomber " + bomberIndex + " places the bomb");
                 this.bomb = new Bomb(this, bomber.x, bomber.y, 'bomb');
                 this.add.existing(this.bomb);
-                this.bombing = new Bombing(this, bomber.x, bomber.y);
-                console.log("bomb placed " + bomber.x + "  "  + bomber.y);
-                this.bombing.blast(this.spies, this.bombRespawnTimer, time); 
+                this.bomb.spawn();
+                console.log("bomb placed @ " + bomber.x + "  "  + bomber.y);
+                
             }
+            console.log("BOMB");
+            
+            
             this.bombRespawnTimer = 0;
+
         } 
- 
+        
+        this.bombtimer += delta;
+        //console.log("bombtimer " + this.bombtimer);
         //peacebuilder meeting spies and converting them
         this.spies.forEach(function(spy){
             this.meeting = new Meeting(this.spy1, spy);
@@ -319,6 +322,7 @@ export default class City extends Phaser.Scene
                 //finish talk if meeting ends with a successful conversion
                 if(spy.flipped) {
                     this.textMeetingSymbol.setText("");
+                    spy.mission.operation.title = "peacework";
                 }   
             }
         }, this);

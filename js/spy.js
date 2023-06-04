@@ -1,5 +1,4 @@
 import Alignment from "./alignment.js";
-import Bombing from "./bombing.js";
 import Mission from "./mission.js";
 import StressBar from "./stressBar.js";
 import TrustBar from "./trustBar.js";
@@ -66,7 +65,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
     }
 
     hoverIndicators() {
-        console.log("health " + this.health + "   stress" + this.stress);
+        //console.log("health " + this.health + "   stress" + this.stress);
         this.hoverStressBar();
         this.hoverLifeBar();
         this.hoverTrustBar();
@@ -175,9 +174,6 @@ export default class Spy extends Phaser.GameObjects.Sprite {
        
     }
 
-    bombing () {
-        new Bombing();
-    }
 
     dead () {
         this.alive = false;
