@@ -10,8 +10,10 @@ export default class Operation {
         return title[Math.floor(Math.random() * title.length)];
     }
 
-    makeOperation() {
-
+    makeOperation(title) {
+        //prepper
+        //places suitcases
+        //switches own tween
     }
 
     run() {

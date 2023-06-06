@@ -39,7 +39,7 @@ export default class StressBar extends Phaser.GameObjects.Rectangle {
         var dY = Math.abs(bombY - spyY);
         var shortestDistance = Math.sqrt(dX * dX + dY * dY);
         const BOMBSIZE = 128;
-        var stressFactor =  BOMBSIZE / (32 * shortestDistance);
+        var stressFactor =  BOMBSIZE / ( shortestDistance);
 
         return stressFactor;
     }

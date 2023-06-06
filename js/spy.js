@@ -198,7 +198,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
     stressDecrease (stressShock) {
         if(this.stress > 0) {
 
-            this.stress -= 2;
+            this.stress -= stressShock;
         }
         else {
             console.log("dead stressed spy");
@@ -218,7 +218,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
 
     lifeDecrease (damage) {
         if(this.health > 0) {
-            this.health -= 1;
+            this.health -= damage;
         }
         else {
             console.log("dead spy");

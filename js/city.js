@@ -8,6 +8,7 @@ import CityCreator from "./cityCreator.js";
 import Alignment from "./alignment.js";
 import LifeBar from "./lifeBar.js";
 import Bomb from "./bomb.js";
+import Suitcase from "./suitcase.js";
 export default class City extends Phaser.Scene 
 {
     constructor(){
@@ -46,6 +47,9 @@ export default class City extends Phaser.Scene
         this.bombs =[];
         this.monitoring;
         this.monitoringText = "HELLO, WORLD MONITOR";
+        this.suitcase;
+        this.preppers;
+        this.spies = [];
     }
 
     preload() {
@@ -80,6 +84,15 @@ export default class City extends Phaser.Scene
         this.load.spritesheet(
             'explosion',
             '/assets/spritesheet/explosions.png',
+            {
+                frameWidth: 32,
+                frameHeight: 32,
+                spacing: 0
+            }
+        );
+        this.sprite = this.load.spritesheet(
+            'suitcase',
+            '/assets/sprites/suitcase.png',
             {
                 frameWidth: 32,
                 frameHeight: 32,
@@ -122,6 +135,7 @@ export default class City extends Phaser.Scene
         //this.graphics = this.add.graphics();
         var timeline = this.tweens.createTimeline();
 
+        this.preppers = this.add.group();
         //contact management at meeting
         this.isInContact = false;
         this.isInTalks = false;
@@ -236,7 +250,7 @@ export default class City extends Phaser.Scene
 
     update (time, delta) {
         
-        this.monitoringText = this.bombers.length;
+        this.monitoringText = this.bombers.length + "  p:" + this.preppers.getLength();
         this.monitoring.setText(this.monitoringText);
         //graphics.clear();
         
@@ -327,7 +341,28 @@ export default class City extends Phaser.Scene
             }
         }, this);
 
-        //refactor:
+        //BREADCRUMB!!!
+        //suitcase placement
+        //this.preppers.clear(true, true);
+
+        this.spies.forEach(function(spy){
+            if(spy.mission.operation.title === "prepper") {
+                    this.preppers.add(spy);
+            }
+        }, this);
+
+        this.monitoringText = "prep" + this.preppers.length;
+
+        this.preppers.children.iterate(function(spy) {
+            //create suitcase
+            //place suitcase on the journey of the spy
+            this.suitcase = new Suitcase(this, spy, "suitcase", 0);
+            this.suitcase.create();
+            spy.mission.operation.makeOperation("prepper");
+            spy.mission.operation.run();
+        }, this);
+
+        
 
         this.spies.forEach(function(spy){
             spy.hoverIndicators();
