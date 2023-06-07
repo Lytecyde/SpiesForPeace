@@ -186,6 +186,7 @@ export default class City extends Phaser.Scene
         };   
 
         this.spyGroup = this.add.group(group_config);
+        this.suitcaseGroup = this.add.group(group_config);
         this.spyBlackGroup = this.add.group(group_config);    
         this.spyWhiteGroup = this.add.group(group_config);
         //DOING: set random locations for each spy 
@@ -222,6 +223,34 @@ export default class City extends Phaser.Scene
 
         this.makeBombers();
         
+        this.spies.forEach(function(spy){
+            if(spy.mission.operation.title === "prepper") {
+                    this.preppers.add(spy);
+            }
+        }, this);
+
+        this.monitoringText = "prep" + this.preppers.length;
+
+        this.preppers.children.iterate(function(spy) {
+            //create suitcase
+            //place suitcase on the journey of the spy
+            this.suitcase = new Suitcase(this, spy, "suitcase", 0);
+            this.suitcaseGroup.add(this.suitcase);
+            spy.mission.operation.makeOperation("prepper");
+            spy.mission.operation.run();
+        }, this);
+
+        //take suitcase
+        this.suitcaseGro
+        dd.collider(this.suitcaseGroup.getLast(), this.spyGroup, function(suitcase, spy) {
+            //TODO: add resource to this agent
+            
+            //remove suitcase
+            this.suitcaseGroup
+                .getLast()
+                .destroy();
+        });
+
         //💭!!
                 
         //BARS
@@ -341,28 +370,8 @@ export default class City extends Phaser.Scene
             }
         }, this);
 
-        //BREADCRUMB!!!
         //suitcase placement
         //this.preppers.clear(true, true);
-
-        this.spies.forEach(function(spy){
-            if(spy.mission.operation.title === "prepper") {
-                    this.preppers.add(spy);
-            }
-        }, this);
-
-        this.monitoringText = "prep" + this.preppers.length;
-
-        this.preppers.children.iterate(function(spy) {
-            //create suitcase
-            //place suitcase on the journey of the spy
-            this.suitcase = new Suitcase(this, spy, "suitcase", 0);
-            this.suitcase.create();
-            spy.mission.operation.makeOperation("prepper");
-            spy.mission.operation.run();
-        }, this);
-
-        
 
         this.spies.forEach(function(spy){
             spy.hoverIndicators();

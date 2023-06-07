@@ -12,7 +12,7 @@ export default class Suitcase extends Phaser.GameObjects.Sprite {
         this.contains = new Resources(Math.floor(Math.random() * this.resourcesLength));
         this.emojiSuitcase = "💼";
         //this.suitcaseSymbol = this.scene.add.text(spy.x , spy.y, this.emojiSuitcase, { font: '32px Courier', fill: '#000000' });
-        
+        this.create();
     }
 
     create() {
@@ -27,18 +27,21 @@ export default class Suitcase extends Phaser.GameObjects.Sprite {
           });
 
           this.scene.time.addEvent({
-            delay: 5000,
-            callback: () -> {
-                this.play("suitcase-placed");
-                this.spawn(this.spy.x, this.spy.y);
+            delay: 3000 + Math.floor(Math.random() * 2000),
+            callback: () => {
+              this.setVisible(true);
+              this.play('suitcase-placed');
+              
+              this.spawn(this.spy.x, this.spy.y);
             },
             callbackScope: this,
-            loop: true
-          });
+            loop: false
+        });
     }
 
     spawn(x, y){
         const suitcase = this.scene.add.sprite(x,y, 'suitcase');
         this.scene.add.existing(suitcase);
+        
     }
 }
