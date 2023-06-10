@@ -31,22 +31,22 @@ export default class Bomb extends Phaser.GameObjects.Sprite {
               'explosion',
              { start: 0, end: 11 }
              ),
-            defaultTextureKey: null,
+             defaultTextureKey: null,
   
-            // time
-            delay: 0,
-            frameRate: 24,
-            duration: null,
-            skipMissedFrames: true,
-  
-            // repeat
-            repeat: 0,
-            repeatDelay: -1,
-            yoyo: false,
-  
-            // visible
-            showOnStart: false,
-            hideOnComplete: true
+             // time
+             delay: 0,
+             frameRate: 24,
+             duration: null,
+             skipMissedFrames: true,
+   
+             // repeat
+             repeat: 0,
+             repeatDelay: -1,
+             yoyo: false,
+   
+             // visible
+             showOnStart: false,
+             hideOnComplete: true
         });   
         this.bombtimer = 0;
         this.x = x;
@@ -60,6 +60,7 @@ export default class Bomb extends Phaser.GameObjects.Sprite {
             callback: () => {
               this.setVisible(true);
               this.play('explosion');
+              this.setScale(2);
               this.detonation();
               this.on('animationcomplete', () => {
                 this.destroy();
@@ -76,7 +77,7 @@ export default class Bomb extends Phaser.GameObjects.Sprite {
 
     blastEffects(spy, stressShock) {
         //spies
-        console.log("blast effects");
+       //console.log("blast effects");
         spy.stressBar.setLevel(spy.stress);
         spy.lifeBar.setLevel(spy.health);
         spy.lifeDecrease(stressShock);
@@ -91,7 +92,6 @@ export default class Bomb extends Phaser.GameObjects.Sprite {
 
         aggressives.forEach(function(spy){
             var stressShock = Math.floor(spy.stressBar.stressCausedByBomb(this.x, this.y, spy.x, spy.y));
-            console.log("stress shock: " + stressShock);
             this.blastEffects(spy, stressShock);
         }, this);
     }

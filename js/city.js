@@ -12,7 +12,7 @@ import Suitcase from "./suitcase.js";
 export default class City extends Phaser.Scene 
 {
     constructor(){
-        super('City');
+        super({ key: 'City', physics: { default: 'arcade', arcade: { gravity: { y: 0 } } } });
         this.level;
         this.alignmentBar;
         this.spy1;
@@ -50,6 +50,7 @@ export default class City extends Phaser.Scene
         this.suitcase;
         this.preppers;
         this.spies = [];
+        this.suitcaseGroup;
     }
 
     preload() {
@@ -90,7 +91,7 @@ export default class City extends Phaser.Scene
                 spacing: 0
             }
         );
-        this.sprite = this.load.spritesheet(
+        this.load.spritesheet(
             'suitcase',
             '/assets/sprites/suitcase.png',
             {
@@ -98,7 +99,7 @@ export default class City extends Phaser.Scene
                 frameHeight: 32,
                 spacing: 0
             }
-        );
+          );
     }   
 
     createLevelMapCity (scene) 
@@ -185,8 +186,8 @@ export default class City extends Phaser.Scene
             createMultipleCallback: null
         };   
 
-        this.spyGroup = this.add.group(group_config);
-        this.suitcaseGroup = this.add.group(group_config);
+        this.spyGroup = this.physics.add.group();
+        this.suitcaseGroup = this.physics.add.group();
         this.spyBlackGroup = this.add.group(group_config);    
         this.spyWhiteGroup = this.add.group(group_config);
         //DOING: set random locations for each spy 
@@ -231,25 +232,25 @@ export default class City extends Phaser.Scene
 
         this.monitoringText = "prep" + this.preppers.length;
 
+
         this.preppers.children.iterate(function(spy) {
             //create suitcase
             //place suitcase on the journey of the spy
-            this.suitcase = new Suitcase(this, spy, "suitcase", 0);
-            this.suitcaseGroup.add(this.suitcase);
+            this.suitcase = new Suitcase(this, spy, 'suitcase', 0);
+            
+            
             spy.mission.operation.makeOperation("prepper");
             spy.mission.operation.run();
         }, this);
 
         //take suitcase
-        this.suitcaseGro
-        dd.collider(this.suitcaseGroup.getLast(), this.spyGroup, function(suitcase, spy) {
-            //TODO: add resource to this agent
-            
-            //remove suitcase
-            this.suitcaseGroup
-                .getLast()
-                .destroy();
-        });
+        this.spyGroup.children.iterate(function(spy) {
+            this.physics.add.overlap(spy, this.suitcaseGroup,  function(spy, suitcase) {
+                //TODO: add resource to this agent
+                console.log("overlap");
+                //suitcase.destroy(suitcase);
+            });
+        }, this);
 
         //💭!!
                 
@@ -343,7 +344,12 @@ export default class City extends Phaser.Scene
             
             this.bombRespawnTimer = 0;
 
-        } 
+        }
+
+        this.suitcaseGroup.forEach(function(s) {
+            this.add.existing(s);
+            s.create();
+        }, this);
         
         this.bombtimer += delta;
         //console.log("bombtimer " + this.bombtimer);
