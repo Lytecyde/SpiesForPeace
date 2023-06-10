@@ -346,7 +346,7 @@ export default class City extends Phaser.Scene
 
         }
 
-        this.suitcaseGroup.forEach(function(s) {
+        this.suitcaseGroup.children.iterate(function(s) {
             this.add.existing(s);
             s.create();
         }, this);
