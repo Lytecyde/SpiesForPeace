@@ -14,6 +14,9 @@ export default class Suitcase extends Phaser.GameObjects.Sprite {
         this.setPosition(spy.x, spy.y);
         
         console.log("placed a suitcase");
+        setTimeout(() => {
+          this.destroy();
+        }, 10000);
        //this.setPosition(spy.x, spy.y); 
     }
 
@@ -31,7 +34,7 @@ export default class Suitcase extends Phaser.GameObjects.Sprite {
           // time
           delay: 0,
           frameRate: 24,
-          duration: 5000,
+          duration: 0,
           //skipMissedFrames: true,
 
           // repeat
@@ -48,12 +51,14 @@ export default class Suitcase extends Phaser.GameObjects.Sprite {
         this.play('suitcaseplaced');
         // Set a timed event to hide the suitcase after the animation is complete
         this.scene.time.addEvent({
-            delay: 3000, // duration of the animation
+            delay: 100, // duration of the animation
             callback: () => {
+              
               this.setVisible(true);
               this.on('animationcomplete', () => {
                 this.setVisible(false);
-                //this.destroy();
+                //this.scene.isSuitcasePlaced = true;
+                this.destroy();
               });
             },
             callbackScope: this,

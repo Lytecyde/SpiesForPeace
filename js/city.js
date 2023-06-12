@@ -51,6 +51,8 @@ export default class City extends Phaser.Scene
         this.preppers;
         this.spies = [];
         this.suitcaseGroup;
+        this.suitcaseRespawnTimer = 0;
+        this.isSuitcasePlaced = true;
     }
 
     preload() {
@@ -128,6 +130,11 @@ export default class City extends Phaser.Scene
         return bombers;
     }
 
+    countPreppers() {
+        const prepperLength = this.spies.filter(spy => spy.mission.operation.title === 'prepper').length;
+        return prepperLength;
+    }
+
     create (scene) {
         var levelMapData = this.createLevelMapCity(scene);
         var mapCity = this.make.tilemap({data: levelMapData, tileWidth: 32, tileHeight: 32});
@@ -136,7 +143,29 @@ export default class City extends Phaser.Scene
         //this.graphics = this.add.graphics();
         var timeline = this.tweens.createTimeline();
 
-        this.preppers = this.add.group();
+        this.anims.create({
+            key: 'suitcaseplaced',
+            frames: this.anims.generateFrameNumbers('suitcase', {
+              start: 0,
+              end: 0
+            }),
+            defaultTextureKey: null,
+            // time
+            delay: 0,
+            frameRate: 24,
+            duration: 5000,
+            //skipMissedFrames: true,
+  
+            // repeat
+            repeat: 0,
+            repeatDelay: -1,
+            yoyo: false,
+  
+            // visible
+            showOnStart: true,
+            hideOnComplete: true
+          });
+
         //contact management at meeting
         this.isInContact = false;
         this.isInTalks = false;
@@ -190,6 +219,7 @@ export default class City extends Phaser.Scene
         this.suitcaseGroup = this.physics.add.group();
         this.spyBlackGroup = this.add.group(group_config);    
         this.spyWhiteGroup = this.add.group(group_config);
+        this.preppers = this.add.group(group_config);
         //DOING: set random locations for each spy 
         var numberOfSpies = 3;
         var timelinesBlack = [];
@@ -265,6 +295,32 @@ export default class City extends Phaser.Scene
         this.lifeBar.draw();
         //CURSORKEYS
         this.cursors = this.input.keyboard.createCursorKeys();
+
+
+        this.time.addEvent({
+            delay: 5000, 
+            callback: () => {
+                this.isSuitcasePlaced = false;
+                this.makePreppers(); 
+                console.log("preppers" + this.countPreppers());
+                var randomIndex = Math.floor(Math.random() * this.countPreppers());
+                var prepper = this.preppers[randomIndex];
+                if(this.countPreppers() > 0 && !this.isSuitcasePlaced) {
+                    console.log(" prepper " + randomIndex + " places the suitcase");
+                    
+                    this.suitcase = new Suitcase(this, prepper, 'suitcase', 0);
+                    this.add.existing(this.suitcase);
+                    this.suitcase.create();
+                    //this.play(this.suitcase);
+                    console.log("suitcase placed @ " + prepper.x + "  "  + prepper.y);
+                    //this.isSuitcasePlaced = true;
+                };
+                
+                //this.suitcaseRespawnTimer = 0;
+            },
+            callbackScope: this,
+            loop: true
+        });
     }//CREATE() ENDS
 
     makeBombers(){  
@@ -278,9 +334,20 @@ export default class City extends Phaser.Scene
         this.bombers = this.bombers.sort((a, b) => 0.5 - Math.random());
     }
 
+    makePreppers(){  
+        this.preppers = []
+        this.spies.forEach( (spy) => {
+            if(spy.mission.operation.title == "prepper") {
+                this.preppers.push(spy); 
+            }
+        });
+        //shuffle the array
+        this.preppers = this.preppers.sort((a, b) => 0.5 - Math.random());
+    }
+
     update (time, delta) {
         
-        this.monitoringText = this.bombers.length + "  p:" + this.preppers.getLength();
+        this.monitoringText = this.bombers.length + "  p:" + this.countPreppers();
         this.monitoring.setText(this.monitoringText);
         //graphics.clear();
         
@@ -321,11 +388,11 @@ export default class City extends Phaser.Scene
         //bomb
         this.bombRespawnTimer += delta;
         time = time + delta;
+        this.suitcaseRespawnTimer += delta; 
         //console.log("bombers" + this.bombers.length);
         var respawnTimeTEST = 3000;//(Math.floor(Math.random() * 15) * 100) + 1500;
         if(this.bombRespawnTimer > respawnTimeTEST && this.bombmade)
         {
-            
             //pick a bomber from those remaining spies
             this.makeBombers(); 
             console.log(this.countBombers());
@@ -336,15 +403,30 @@ export default class City extends Phaser.Scene
                 this.bomb = new Bomb(this, bomber.x, bomber.y, 'bomb');
                 this.add.existing(this.bomb);
                 this.bomb.spawn();
-                console.log("bomb placed @ " + bomber.x + "  "  + bomber.y);
-                
+                console.log("bomb placed @ " + bomber.x + "  "  + bomber.y);   
             }
-            console.log("BOMB");
-            
-            
             this.bombRespawnTimer = 0;
-
         }
+        /*
+        var suitcaseRespawnTimeTEST = 4000;//(Math.floor(Math.random() * 15) * 100) + 1500;
+        if(this.isSuitcasePlaced)
+        {
+            //this.isSuitcasePlaced = false;    
+            //pick a bomber from those remaining spies
+            this.makePreppers(); 
+            console.log("preppers" + this.countPreppers());
+            var randomIndex = Math.floor(Math.random() * this.countPreppers());
+            var prepper = this.preppers[randomIndex];
+            if(this.countPreppers() > 0) {
+                console.log(" prepper " + randomIndex + " places the suitcase");
+                this.add.sprite(prepper.x, prepper.y, 'suitcase').play('suitcaseplaced')
+                this.suitcase = new Suitcase(this, prepper, 'suitcase', 0);
+                this.add.existing(this.suitcase);
+                this.suitcase.create();
+                console.log("bomb placed @ " + prepper.x + "  "  + prepper.y);
+            }
+            this.suitcaseRespawnTimer = 0;
+        }*/
 
         this.suitcaseGroup.children.iterate(function(s) {
             this.add.existing(s);
