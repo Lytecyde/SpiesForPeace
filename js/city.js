@@ -277,30 +277,36 @@ export default class City extends Phaser.Scene
         //💭!!
 
         this.physics.add.collider(this.suitcaseGroup, this.spyGroup, function(suitcase, spy) {
-            console.log("suitcase handling at collision");
-
-            switch (suitcase.contains){ 
-                case 'MONEY' : {
-                    spy.money++;
-                    break;
+            
+            if(suitcase.spy.name !== spy.name){
+                switch (suitcase.contains.resource){ 
+                    case "MONEY" : {
+                        console.log("money 1 gold");
+                        spy.money++;
+                        break;
+                    }
+                    case "INFORMATION" : {
+                        console.log("info");
+                        spy.info++;
+                        break;
+                    }
+                    case "CONTACT" : {
+                        console.log("contact for collab");
+                        spy.contacts++;
+                        break;
+                    }
+                    case "EXCITEMENT": {
+                        console.log("fun time");
+                        spy.excitement++;
+                        break;
+                    }
+                    default : {
+                        console.log("bomb terra");
+                        spy.bomb++;
+                    }
                 }
-                case 'INFO' : {
-                    spy.info++;
-                    break;
-                }
-                case 'CONTACT' : {
-                    spy.contacts++;
-                    break;
-                }
-                case 'EXCITEMENT': {
-                    spy.excitement++;
-                    break;
-                }
-                default : {
-                    spy.bomb++;
-                }
+                suitcase.destroy();
             }
-            suitcase.destroy();
         });         
         //BARS
         
@@ -432,10 +438,6 @@ export default class City extends Phaser.Scene
             this.add.existing(s);
             s.create();
         }, this);
-        
-       
-       
-          
 
         this.bombtimer += delta;
         //console.log("bombtimer " + this.bombtimer);

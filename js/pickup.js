@@ -22,7 +22,8 @@ export default class Pickup {
         this.begins = false; 
         if (this.checkOverlap(spy, suitcase)) 
         { 
-            suitcase.destroy();
+            console.log("pickup the suitcase");
+            //suitcase.destroy();
         }  
     }
 }
