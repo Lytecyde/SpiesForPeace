@@ -15,6 +15,10 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         this.alive = true; 
         //DATA
         this.health = 5;
+        this.money = 0;
+        this.info = 0;
+        this.contacts = 0;
+        this.excitement = 0;
         this.codename = codename;
         this.stress = 5;
         this.trust = 5;

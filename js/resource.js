@@ -13,7 +13,7 @@ export default class Resource {
         const RESOURCE_TYPE_NAMES = [
             "MONEY",
             "INFORMATION",
-            "COOPERATION",
+            "CONTACT",
             "EXCITEMENT"
             //TODO: add additional resources
             //, "STATUS" //: 4
