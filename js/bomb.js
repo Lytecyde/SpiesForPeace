@@ -60,6 +60,7 @@ export default class Bomb extends Phaser.GameObjects.Sprite {
             callback: () => {
               this.setVisible(true);
               this.play('explosion');
+              const shakeEffect = this.cameras.main.shake(2000, 0.05);
               this.setScale(2);
               this.detonation();
               this.on('animationcomplete', () => {
