@@ -1,3 +1,5 @@
+import Epicenter from "./epicenter.js";
+
 export default class Bomb extends Phaser.GameObjects.Sprite {
 //refactoring the bomb stuff from the city.js
     constructor (scene, x, y, bombKey) {
@@ -52,20 +54,26 @@ export default class Bomb extends Phaser.GameObjects.Sprite {
         this.x = x;
         this.y = y;
         this.scene = scene;
+        
     }
 
     spawn() {
         this.scene.time.addEvent({
             delay: 3000 + Math.floor(Math.random() * 1500),
             callback: () => {
-              this.setVisible(true);
-              this.play('explosion');
-              const shakeEffect = this.scene.cameras.main.shake(200, 0.025);
-              this.setScale(2);
-              this.detonation();
-              this.on('animationcomplete', () => {
-                this.destroy();
-              });
+                this.setVisible(true);
+                this.play('explosion');
+                this.epicenter = new Epicenter(this.scene, this.x, this.y);
+                const BOMBSWITCH = false;
+                if(BOMBSWITCH) {
+                    const shakeEffect = this.scene.cameras.main.shake(200, 0.025);
+                }
+                this.setScale(2);
+                this.detonation();
+                this.on('animationcomplete', () => {
+                    this.destroy();
+                    this.epicenter.remove();
+                });
             },
             callbackScope: this,
             loop: false
@@ -78,21 +86,18 @@ export default class Bomb extends Phaser.GameObjects.Sprite {
 
     blastEffects(spy, stressShock) {
         //spies
-       //console.log("blast effects");
         spy.stressBar.setLevel(spy.stress);
         spy.lifeBar.setLevel(spy.health);
         spy.lifeDecrease(stressShock);
-        spy.stressDecrease(stressShock);
-        //scenery
     }
 
     applyToSpiesNearby() {
-        var aggressives = this.scene.spies.filter(function(spy){
-            return spy.mission.operation.title !== "peaceworker";
-        });
-
+        var aggressives = this.scene.spies.filter((spy) =>
+        (spy.mission.operation.title !== "peaceworker"));
+        console.log(aggressives.length + " counting the aggressives");
         aggressives.forEach(function(spy){
-            var stressShock = Math.floor(spy.stressBar.stressCausedByBomb(this.x, this.y, spy.x, spy.y));
+            var stressShock = this.epicenter.getDamageLevel(spy); 
+            console.log(stressShock + "stressshock");
             this.blastEffects(spy, stressShock);
         }, this);
     }

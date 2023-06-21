@@ -278,7 +278,7 @@ export default class City extends Phaser.Scene
 
         this.physics.add.collider(this.suitcaseGroup, this.spyGroup, function(suitcase, spy) {
             
-            if(suitcase.spy.name !== spy.name){
+            if(suitcase.spy.codename !== spy.codename){
                 switch (suitcase.contains.resource){ 
                     case "MONEY" : {
                         console.log("money 1 gold");
@@ -342,6 +342,26 @@ export default class City extends Phaser.Scene
                 };
                 
                 //this.suitcaseRespawnTimer = 0;
+            },
+            callbackScope: this,
+            loop: true
+        });
+
+        this.time.addEvent({
+            delay: 3000, 
+            callback: () => {
+                this.makeBombers(); 
+                console.log("bombers" + this.countBombers());
+                var bomberIndex = Math.floor(Math.random() * this.countBombers());
+                var bomber = this.bombers[bomberIndex];
+                if(this.countBombers() > 0) {
+                    console.log(" bomber " + bomberIndex + " places the bomb");
+                    this.bomb = new Bomb(this, bomber.x, bomber.y, 'bomb');
+                    this.add.existing(this.bomb);
+                    this.bomb.spawn();
+                    console.log("bomb placed @ " + bomber.x + "  "  + bomber.y);   
+                }
+                this.bombRespawnTimer = 0;
             },
             callbackScope: this,
             loop: true
@@ -415,7 +435,7 @@ export default class City extends Phaser.Scene
         this.bombRespawnTimer += delta;
         time = time + delta;
         this.suitcaseRespawnTimer += delta; 
-        //console.log("bombers" + this.bombers.length);
+        /*console.log("bombers" + this.bombers.length);
         var respawnTimeTEST = 3000;//(Math.floor(Math.random() * 15) * 100) + 1500;
         if(this.bombRespawnTimer > respawnTimeTEST && this.bombmade)
         {
@@ -433,7 +453,8 @@ export default class City extends Phaser.Scene
             }
             this.bombRespawnTimer = 0;
         }
-
+        */
+        this.suitcaseGroup = this.physics.add.group();
         this.suitcaseGroup.children.iterate(function(s) {
             this.add.existing(s);
             s.create();

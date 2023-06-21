@@ -7,7 +7,7 @@ export default class LifeBar extends Phaser.GameObjects.Rectangle {
         this.y = y - 19;
         this.scene = scene;
         scene.add.existing(this);
-        this.setLevel(5);
+        this.setLevel(15);
         this.setFillStyle(0x00ff00);
     }
 
@@ -16,33 +16,23 @@ export default class LifeBar extends Phaser.GameObjects.Rectangle {
         this.scene.add.existing(this);
     }
 
-    setLevel(life) {
+    setLevel(health) {
         //red
         this.setFillStyle(0xff0000);
-        this.setSize(3, 3);
+        this.setSize(health, 3);
         //green
-        if (life > 3) {
+        if (health > 10) {
             this.setFillStyle(0x00ff00);
-            this.setSize(12, 3);
+            this.setSize(health, 3);
 
             return;
         }
         ///yellow
-        if (life > 1) {
+        if (health > 5) {
             this.setFillStyle(0xffff00);
-            this.setSize(6, 3);
+            this.setSize(health, 3);
 
             return;
         }
-    }
-    
-    lifeDecreaseCausedByBomb(bombX, bombY, spyX, spyY) {
-        var dX = Math.abs(bombX - spyX);
-        var dY = Math.abs(bombY - spyY);
-        var shortestDistance = Math.sqrt(dX * dX + dY * dY);
-        const BOMBSIZE = 4800;
-        var lifeDecrease =  BOMBSIZE /  (32 * shortestDistance);
-
-        return lifeDecrease;
     }
 }

@@ -14,14 +14,13 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         
         this.alive = true; 
         //DATA
-        this.name = codename;
         this.health = 5;
         this.money = 0;
         this.info = 0;
         this.contacts = 0;
         this.excitement = 0;
         this.codename = codename;
-        this.stress = 5;
+        this.stress = 15;
         this.trust = 5;
         this.desire = [];
         this.bombs =  3;
@@ -36,6 +35,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
         this.trustBar = new TrustBar(this.x, this.y, this.scene, this.trust);
         this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
         this.tween;
+        this.setInteractive();
     }
 
     getLocationX() {
@@ -226,7 +226,7 @@ export default class Spy extends Phaser.GameObjects.Sprite {
             this.health -= damage;
         }
         else {
-            console.log("dead spy");
+            console.log("dead spy " + this.codename);
             this.dead();    
         }
     }
